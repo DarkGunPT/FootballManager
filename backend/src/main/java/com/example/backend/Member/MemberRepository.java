@@ -1,8 +1,8 @@
-package com.example.backend.Player;
+package com.example.backend.Member;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PlayerRepository extends MongoRepository<Player, Integer> {
+public interface MemberRepository extends MongoRepository<Member, Integer> {
 }

@@ -1,4 +1,4 @@
-package com.example.backend.Player;
+package com.example.backend.Member;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,17 +10,17 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/players")
-public class PlayerController {
+public class MemberController {
     @Autowired
-    PlayerRepository repository;
+    MemberRepository repository;
     @GetMapping("/all")
-    public List<Player> listPlayers(){
+    public List<Member> listMembers(){
         return repository.findAll();
     }
 
     @PostMapping("/create")
-    public Player createPlayer(){
-        Player p = new Player("Francisco");
-        return repository.save(p);
+    public Member create(){
+        Member member = new Member("Francisco", Membership.ADMIN, "teste", "nuno@gmail.com", 500);
+        return repository.save(member);
     }
 }
