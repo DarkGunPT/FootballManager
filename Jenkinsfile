@@ -14,7 +14,7 @@ pipeline {
         stage('Create Volume') {
             steps {
                 script {
-                    sh'docker volume create mongo-data'
+                    sh 'docker volume create mongo-data'
                 }
             }
         }
