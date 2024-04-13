@@ -1,6 +1,5 @@
 package com.example.backend.Member;
 
-import com.example.backend.Payments.PaymentsController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +11,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/members")
@@ -67,10 +70,29 @@ public class MemberController {
         }
 
     }
+    @DeleteMapping("/delete/{id}")
+    public Member delete(@PathVariable String id){
+        Member existingMember = repository.findByIdentifier(id);
+        if(existingMember!=null){
+           return repository.deleteByIdentifier(id);
+        } else {
+            return null;
+        }
+    }
+
+    @GetMapping("/login")
+        public boolean login(@RequestParam String email, @RequestParam String password){
+        List<Member> existingMember = repository.findByEmail(email);
+        if(!existingMember.isEmpty()){
+            return Objects.equals(existingMember.get(0).getPassword(), password);
+        }
+        return false;
+    }
 
     @PatchMapping("/update/{id}")
     public Member update(@PathVariable String id, @RequestBody Member request, @RequestParam Boolean gotBalance){
         Member existingMember = repository.findByIdentifier(id);
+
         if(existingMember!=null){
             if (request.getName() != null) {
                 existingMember.setName(request.getName());

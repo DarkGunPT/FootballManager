@@ -19,12 +19,39 @@ public class PaymentsController {
 
     @PostMapping("/create")
     public Payments createPayment(@RequestBody Payments request){
-        Payments payment = new Payments(request.paymentFrom, request.paymentTo, request.value, request.date);
+        Payments payment;
+        if(request.date!=null){
+            payment = new Payments(request.paymentFrom, request.paymentTo, request.value, request.date);
+        }else{
+            payment = new Payments(request.paymentFrom, request.paymentTo, request.value, LocalDate.now());
+        }
         return repository.save(payment);
     }
 
-    @GetMapping("/{id}")
-    public List<Payments> ammountToPay(@PathVariable String memberId){
+    @PatchMapping("/pay/{id}")
+    public Payments payPayment(@PathVariable String id){
+        Payments existingPayment = repository.findByIdentifier(id);
+
+        if(existingPayment!=null) {
+            existingPayment.setPaid(true);
+            return repository.save(existingPayment);
+        } else {
+            return null;
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public Payments deletePayment(@PathVariable String id){
+        Payments existingPayment = repository.findByIdentifier(id);
+        if(existingPayment!=null){
+            return repository.deleteByIdentifier(id);
+        } else {
+            return null;
+        }
+    }
+
+    @GetMapping("/{memberId}")
+    public List<Payments> memberPayments(@PathVariable String memberId){
         return repository.findByMemberId(memberId);
     }
 }
