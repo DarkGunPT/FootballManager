@@ -14,7 +14,9 @@ pipeline {
         stage('Create Volume') {
             steps {
                 script {
-                    sh 'docker volume create mongo-data'
+                    docker.image('docker:latest').inside {
+                        sh 'docker volume create mongo-data'
+                    }
                 }
             }
         }
