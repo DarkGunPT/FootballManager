@@ -7,9 +7,17 @@ pipeline {
         BACKEND_DOCKERFILE = './dockerfile'
         MONGO_CONTAINER_NAME = 'mongodb'
         BACKEND_CONTAINER_NAME = 'backend'
+        NETWORK = 'football-network'
     }
 
     stages {
+        stage('Create Volume') {
+            steps {
+                script {
+                    sh'docker volume create mongo-data'
+                }
+            }
+        }
         stage('Pull MongoDB Image') {
             steps {
                 script {
@@ -17,7 +25,6 @@ pipeline {
                 }
             }
         }
-
         stage('Pull Custom Backend Code') {
             steps {
                 checkout scm
@@ -36,7 +43,7 @@ pipeline {
             steps {
                 script {
                     docker.image(env.MONGO_IMAGE)
-                        .withRun("-d --name ${env.MONGO_CONTAINER_NAME} ${env.MONGO_IMAGE}")
+                        .withRun("-d --name ${env.MONGO_CONTAINER_NAME} --network ${env.NETWORK} ${env.MONGO_IMAGE}")
                 }
             }
         }
@@ -45,7 +52,7 @@ pipeline {
             steps {
                 script {
                     docker.image(env.BACKEND_IMAGE)
-                        .withRun("-d -p 8080:8080 --name ${env.BACKEND_CONTAINER_NAME} --link ${env.MONGO_CONTAINER_NAME} ${env.BACKEND_IMAGE}")
+                        .withRun("-d -p 8080:8080 --name ${env.BACKEND_CONTAINER_NAME} --network ${env.NETWORK} ${env.BACKEND_IMAGE}")
                 }
             }
         }
