@@ -11,6 +11,26 @@ pipeline {
     }
 
     stages {
+        stage('Check if Docker is Installed') {
+            steps {
+                script {
+                    // Check if Docker is installed
+                    def dockerVersion = sh(script: 'docker --version', returnStdout: true).trim()
+
+                    if (dockerVersion.contains('Docker version')) {
+                        echo "Docker is already installed: ${dockerVersion}"
+                    } else {
+                        echo "Docker is not installed, proceeding with installation"
+                        
+                        // Install Docker inside Jenkins container
+                        sh '''
+                        curl -fsSL https://get.docker.com -o get-docker.sh
+                        sh get-docker.sh
+                        '''
+                    }
+                }
+            }
+        }
         stage('Create Volume') {
             steps {
                 script {
