@@ -1,8 +1,16 @@
 package com.example.backend.Member;
 
+import com.example.backend.Payments.PaymentsController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -11,12 +19,10 @@ public class MemberController {
     @Autowired
     MemberRepository repository;
 
-
     @GetMapping("/all")
     public List<Member> listMembers(){
         return repository.findAll();
     }
-
 
     @GetMapping("/search")
     public List<Member> searchByName(@RequestParam String type, @RequestParam  String value){
@@ -27,10 +33,39 @@ public class MemberController {
             default -> repository.findAll();
         };
     }
+
    @PostMapping("/create")
-    public Member create(@RequestBody Member request){
+    public Member create(@RequestBody Member request) throws URISyntaxException, IOException, InterruptedException {
         Member member = new Member(request.getName(), request.getMembership(), request.getPassword(), request.getEmail(), request.getBalance());
+        createPaymentsYear(member);
         return repository.save(member);
+    }
+
+    public void createPaymentsYear(Member member) throws URISyntaxException, IOException, InterruptedException {
+        // Criar o cliente HTTP
+        HttpClient client = HttpClient.newHttpClient();
+        String requestBody;
+        LocalDate now = LocalDate.now();
+
+        for(int i = 1; i <= 12; i++){
+            if(member.getMembership() != Membership.VIP){
+                requestBody = String.format("{\"paymentFrom\": \"%s\", \"paymentTo\": \"%s\", \"value\": %.2f, \"date\": \"%s\"}", "CLUB", member.getId(), member.getBalance(), now);
+            }else{
+                requestBody = String.format("{\"paymentFrom\": \"%s\", \"paymentTo\": \"%s\", \"value\": %.2f, \"date\": \"%s\"}", member.getId(), "CLUB", member.getBalance(), now);
+            }
+
+            // Construir a solicitação POST
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8080/payments/create"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            now = now.plusMonths(1);
+        }
+
     }
 
     @PatchMapping("/update/{id}")
@@ -56,7 +91,5 @@ public class MemberController {
         }else{
             return null;
         }
-
     }
-
 }
