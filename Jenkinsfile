@@ -11,14 +11,10 @@ pipeline {
     }
 
     stages {
-        stage('Check if Docker is Installed') {
-            steps {
-                script {
-                    // Check if Docker is installed
-                    def dockerVersion = sh(script: 'docker --version', returnStdout: true).trim()
+       def dockerExists = sh(script: 'command -v docker >/dev/null 2>&1 || { echo "not found"; exit 1; }', returnStatus: true).trim() == 0
 
-                    if (dockerVersion.contains('Docker version')) {
-                        echo "Docker is already installed: ${dockerVersion}"
+                    if (dockerExists) {
+                        echo "Docker is already installed"
                     } else {
                         echo "Docker is not installed, proceeding with installation"
                         
@@ -28,9 +24,6 @@ pipeline {
                         sh get-docker.sh
                         '''
                     }
-                }
-            }
-        }
         stage('Create Volume') {
             steps {
                 script {
