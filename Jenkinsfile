@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'docker:dind'
+            privileged true
+        }
+    }
 
     environment {
         MONGO_IMAGE = 'mongo'
