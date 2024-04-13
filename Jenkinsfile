@@ -11,16 +11,6 @@ pipeline {
     }
 
     stages {
-        stage('Install Docker') {
-            steps {
-                script {
-                    sh '''
-                    apt-get update
-                    apt-get install -y docker.io
-                    '''
-                }
-            }
-        }
         stage('Create Volume') {
             steps {
                 script {
