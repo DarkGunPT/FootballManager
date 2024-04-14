@@ -47,25 +47,27 @@ pipeline {
 
        stage('Pull And Build Backend') {
             steps {
-            // Login to Docker Hub
-               
-                dir('backend') {
-                        sh '''
-                        apt-get update
-                        apt-get install -y maven 
-                        mvn -B -DskipTests clean package
-                        docker build -t ${BACKEND_IMAGE} .
-                        docker tag ${BACKEND_IMAGE} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}
-                        docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}
-                        '''
+                script {
+                    def imageExists = sh(script: "docker pull ${DOCKER_HUB_REPO}:${BUILD_NUMBER}", returnStatus: true) == 0
+        
+                    if (imageExists) {
+                        echo "Image ${DOCKER_HUB_REPO}:${BUILD_NUMBER} exists in the registry. Pulling image..."
+                        sh "docker pull ${DOCKER_HUB_REPO}:${BUILD_NUMBER}"
+                    } else {
+                        echo "Image ${DOCKER_HUB_REPO}:${BUILD_NUMBER} does not exist in the registry. Building locally..."
+        
+                        dir('backend') {
+                            sh '''
+                            apt-get update
+                            apt-get install -y maven 
+                            mvn -B -DskipTests clean package
+                            docker build -t ${BACKEND_IMAGE} .
+                            docker tag ${BACKEND_IMAGE} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}
+                            docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}
+                            '''
+                            }
                     }
-    
-                    dir('backend') {
-                        // Build, tag, and push Docker image
-                        sh "docker build -t ${BACKEND_IMAGE} ." || error("Failed to build Docker image")
-                        sh "docker tag ${BACKEND_IMAGE} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to tag Docker image")
-                        sh "docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to push Docker image")
-                    }
+                }
             }
         }
     }
