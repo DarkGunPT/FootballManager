@@ -50,6 +50,7 @@ pipeline {
                   extensions: [[$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'backend/']]]], 
                   submoduleCfg: [], 
                   userRemoteConfigs: [[url: 'https://github.com/DarkGunPT/FootballManager.git', credentialsId: 'fc0cc702-91ef-4479-90e3-8db2202b6d1e']]])
+            sh "mvn clean install"
             sh "docker build -t ${env.BACKEND_IMAGE} -f backend/${env.BACKEND_DOCKERFILE} backend/"
     }
 }
