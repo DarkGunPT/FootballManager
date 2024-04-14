@@ -10,7 +10,7 @@ pipeline {
         BACKEND_CONTAINER_NAME = 'backend'
         NETWORK = 'football-network'
         DOCKER_HUB_REPO = 'xicosimoes/teste'
-        BACKEND_DOCKERFILE = 'Dockerfile'  // Path to your Dockerfile in the repository
+        BACKEND_DOCKERFILE = 'Backend/Dockerfile'  // Path to your Dockerfile in the repository
     }
 
     stages {
