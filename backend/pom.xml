@@ -60,7 +60,7 @@
             <version>3.11.0</version>
             <configuration>
                 <!-- Set Java release version -->
-                <release>11</release>
+                <release>19</release>
                 <excludes>
                     <exclude>
                         <groupId>org.projectlombok</groupId>
