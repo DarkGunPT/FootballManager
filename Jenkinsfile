@@ -65,13 +65,13 @@ pipeline {
                             apt-get update
                             apt-get install -y maven
                             mvn -B -DskipTests clean package
-                            docker build -t ${env.BACKEND_IMAGE} .
-                            docker tag ${env.BACKEND_IMAGE} ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}
-                            docker push ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}
+                            docker build -t $BACKEND_IMAGE .
+                            docker tag $BACKEND_IMAGE $DOCKER_HUB_REPO:$BACKEND_IMAGE
+                            docker push DOCKER_HUB_REPO:$BACKEND_IMAGE
                             '''
                         }
                     }
-                    sh "docker run -p 8082:8082 -d --name ${env.BACKEND_CONTAINER_NAME} --network ${env.NETWORK} ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}"
+                    sh "docker run -p 8082:8082 -d --name $BACKEND_CONTAINER_NAME --network $NETWORK $DOCKER_HUB_REPO:$BACKEND_IMAGE"
                 }
             }
         }
@@ -79,11 +79,11 @@ pipeline {
         stage('Pull And Build Frontend') {
             steps {
                 script {
-                    def imageExists = sh(script: "docker pull ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE}", returnStatus: true) == 0
+                    def imageExists = sh(script: "docker pull $DOCKER_HUB_REPO:$FRONTEND_IMAGE", returnStatus: true) == 0
 
                     if (imageExists) {
                         echo "Image ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE} exists in the registry. Pulling image..."
-                        sh "docker pull ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE}"
+                        sh "docker pull $DOCKER_HUB_REPO:$FRONTEND_IMAGE"
                     } else {
                         echo "Image ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE} does not exist in the registry. Building locally..."
 
@@ -91,13 +91,13 @@ pipeline {
                             sh '''
                             npm install
                             npm run build
-                            docker build -t ${env.FRONTEND_IMAGE} .
-                            docker tag ${env.FRONTEND_IMAGE} ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE}
-                            docker push ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE}
+                            docker build -t $FRONTEND_IMAGE .
+                            docker tag $FRONTEND_IMAGE $DOCKER_HUB_REPO:$FRONTEND_IMAGE
+                            docker push $DOCKER_HUB_REPO:$FRONTEND_IMAGE
                             '''
                         }
                     }
-                    sh "docker run -p 8081:8081 -d --name ${env.FRONTEND_CONTAINER_NAME} --network ${env.NETWORK} ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE}"
+                    sh "docker run -p 8081:8081 -d --name $FRONTEND_CONTAINER_NAME --network $NETWORK $DOCKER_HUB_REPO:$FRONTEND_IMAGE"
                 }
             }
         }
