@@ -12,6 +12,7 @@ pipeline {
         DOCKER_HUB_REPO = 'xicosimoes/teste'
         DOCKERHUB_USERNAME = ''
         DOCKERHUB_PASSWORD = ''
+        BUILD_NUMBER='1'
     }
 
     stages {
