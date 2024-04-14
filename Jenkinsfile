@@ -54,15 +54,17 @@ pipeline {
                         apt-get install -y maven 
                         mvn -B -DskipTests clean package
                         '''
-                    
-                    sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}" || error("Failed to login to Docker Hub")
                     }
-                }
-              dir('backend'){
-                 sh "docker build -t ${DOCKER_IMAGE_NAME} ." || error("Failed to build Docker image")
-                    sh "docker tag ${DOCKER_IMAGE_NAME} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to tag Docker image")
-                    sh "docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to push Docker image")
-              }
+            }
+              // Login to Docker Hub
+            sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}" || error("Failed to login to Docker Hub")
+
+            dir('backend') {
+                // Build, tag, and push Docker image
+                sh "docker build -t ${DOCKER_IMAGE_NAME} ." || error("Failed to build Docker image")
+                sh "docker tag ${DOCKER_IMAGE_NAME} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to tag Docker image")
+                sh "docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to push Docker image")
+            }
           }
     }
         
