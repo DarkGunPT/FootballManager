@@ -14,7 +14,7 @@ pipeline {
         stage('Create Volume') {
             steps {
                 sh 'docker volume create mongo-data'
-                sh 'docker network create football-network'
+                sh 'docker network create ${env.NETWORK}'
             }
         }
         
@@ -76,6 +76,7 @@ pipeline {
             sh "docker rm ${env.BACKEND_CONTAINER_NAME}"
             sh "docker rmi ${env.MONGO_IMAGE}"
             sh "docker rmi ${env.BACKEND_IMAGE}"
+            sh "docker network rm ${env.NETWORK}"
         }
     }
 }
