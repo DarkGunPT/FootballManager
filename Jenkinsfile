@@ -10,7 +10,7 @@ pipeline {
         BACKEND_CONTAINER_NAME = 'backend'
         NETWORK = 'football-network'
         DOCKER_HUB_REPO = 'xicosimoes/teste'
-        DOCKERHUB_USERNAME = 'xicosimoes'
+        DOCKERHUB_USERNAME = ''
         DOCKERHUB_PASSWORD = ''
     }
 
