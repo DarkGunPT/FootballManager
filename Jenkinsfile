@@ -49,7 +49,7 @@ pipeline {
                   doGenerateSubmoduleConfigurations: false, 
                   extensions: [[$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'backend/']]]], 
                   submoduleCfg: [], 
-                  userRemoteConfigs: [[url: 'https://github.com/DarkGunPT/FootballManager.git']]])
+                  userRemoteConfigs: [[url: 'https://github.com/DarkGunPT/FootballManager.git',credentialsId : 'fc0cc702-91ef-4479-90e3-8db2202b6d1e']]])
                   sh "docker build -t ${DOCKER_HUB_REPO} -f ${env.BACKEND_DOCKERFILE} ."
             }
         }
