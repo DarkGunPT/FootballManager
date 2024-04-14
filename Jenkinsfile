@@ -8,7 +8,7 @@ pipeline {
         BACKEND_DOCKERFILE = 'dockerfile'
         MONGO_CONTAINER_NAME = 'mongodb'
         BACKEND_CONTAINER_NAME = 'backend'
-        NETWORK = 'footballNetwork'
+        NETWORK = 'footballNetwork1'
         DOCKER_HUB_REPO = 'xicosimoes/teste'
         DOCKERHUB_USERNAME = ''
         DOCKERHUB_PASSWORD = ''
