@@ -8,7 +8,7 @@ pipeline {
         BACKEND_DOCKERFILE = 'dockerfile'
         MONGO_CONTAINER_NAME = 'mongodb'
         BACKEND_CONTAINER_NAME = 'backend'
-        NETWORK = 'footballNetwork1'
+        NETWORK = 'footballNetwork'
         DOCKER_HUB_REPO = 'xicosimoes/teste'
         DOCKERHUB_USERNAME = ''
         DOCKERHUB_PASSWORD = ''
@@ -28,7 +28,7 @@ pipeline {
                 }
     
                 // Check if the network already exists
-                def networkExists = sh(script: "docker network ls -qf name=${env.NETWORK}", returnStatus: true) == 0
+                def networkExists = sh(script: "docker network ls -qf name=${env.NETWORK}", returnStatus: true).trim() != ""
                 if (!networkExists) {
                     sh "docker network create ${env.NETWORK}"
                 } else {
