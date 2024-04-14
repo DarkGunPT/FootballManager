@@ -46,18 +46,18 @@ pipeline {
         }
 
        stage('Pull And Build Backend') {
-          steps {
-            withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                    dir('backend') {
-                        sh '''
-                        apt-get update
-                        apt-get install -y maven 
-                        mvn -B -DskipTests clean package
-                        '''
-                    }
-            }
-              // Login to Docker Hub
+    steps {
+        // Login to Docker Hub
+        withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
             sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}" || error("Failed to login to Docker Hub")
+
+            dir('backend') {
+                sh '''
+                apt-get update
+                apt-get install -y maven 
+                mvn -B -DskipTests clean package
+                '''
+            }
 
             dir('backend') {
                 // Build, tag, and push Docker image
@@ -65,8 +65,10 @@ pipeline {
                 sh "docker tag ${DOCKER_IMAGE_NAME} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to tag Docker image")
                 sh "docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to push Docker image")
             }
-           }
-         }
+        }
+    }
+}
+
         
 
         stage('Run Custom Backend Container') {
