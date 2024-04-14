@@ -46,40 +46,26 @@ pipeline {
         }
 
        stage('Pull And Build Backend') {
-    steps {
-        // Login to Docker Hub
-        withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-            sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}" || error("Failed to login to Docker Hub")
-
-            dir('backend') {
-                sh '''
-                apt-get update
-                apt-get install -y maven 
-                mvn -B -DskipTests clean package
-                '''
-            }
-
-            dir('backend') {
-                // Build, tag, and push Docker image
-                sh "docker build -t ${BACKEND_IMAGE} ." || error("Failed to build Docker image")
-                sh "docker tag ${BACKEND_IMAGE} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to tag Docker image")
-                sh "docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to push Docker image")
-            }
-        }
-    }
-}
-
-        
-
-        stage('Run Custom Backend Container') {
             steps {
-                sh """
-                docker run -d \
-                -p 8080:8080 \
-                --name ${env.BACKEND_CONTAINER_NAME} \
-                --network ${env.NETWORK} \
-                ${env.BACKEND_IMAGE}
-                """
+            // Login to Docker Hub
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}" || error("Failed to login to Docker Hub")
+    
+                    dir('backend') {
+                        sh '''
+                        apt-get update
+                        apt-get install -y maven 
+                        mvn -B -DskipTests clean package
+                        '''
+                    }
+    
+                    dir('backend') {
+                        // Build, tag, and push Docker image
+                        sh "docker build -t ${BACKEND_IMAGE} ." || error("Failed to build Docker image")
+                        sh "docker tag ${BACKEND_IMAGE} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to tag Docker image")
+                        sh "docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to push Docker image")
+                    }
+                }
             }
         }
     }
