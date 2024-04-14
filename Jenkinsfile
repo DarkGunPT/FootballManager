@@ -8,7 +8,7 @@ pipeline {
         BACKEND_DOCKERFILE = 'dockerfile'
         MONGO_CONTAINER_NAME = 'mongodb'
         BACKEND_CONTAINER_NAME = 'backend'
-        NETWORK = 'football-network'
+        NETWORK = 'footballNetwork'
         DOCKER_HUB_REPO = 'xicosimoes/teste'
         DOCKERHUB_USERNAME = ''
         DOCKERHUB_PASSWORD = ''
@@ -20,7 +20,8 @@ pipeline {
         steps {
             script {
                 // Check if the volume already exists
-                def volumeExists = sh(script: "docker volume ls -qf name=${env.MONGO_VOLUME}", returnStatus: true) == 0
+                def volumeCheck = sh(script: "docker volume ls -qf name=${env.MONGO_VOLUME}", returnStdout: true).trim()
+                def volumeExists = volumeCheck != "" 
                 if (!volumeExists) {
                     sh "docker volume create ${env.MONGO_VOLUME}"
                 } else {
@@ -28,7 +29,8 @@ pipeline {
                 }
     
                 // Check if the network already exists
-                def networkExists = sh(script: "docker network ls -qf name=${env.NETWORK}", returnStatus: true) == 0
+                def networkCheck = sh(script: "docker network ls -qf name=${env.NETWORK}", returnStdout: true).trim()
+                def networkExists = networkCheck != ""                
                 if (!networkExists) {
                     sh "docker network create ${env.NETWORK}"
                 } else {
@@ -41,43 +43,36 @@ pipeline {
         
         stage('Pull And Run MongoDB') {
             steps {
-                sh "docker run -p 27017:27017 -d --name ${env.MONGO_CONTAINER_NAME} --network football-network -v mongo-data:/data/db ${env.MONGO_IMAGE}"
+                script{
+                    sh "docker run -p 27017:27017 -d --name ${env.MONGO_CONTAINER_NAME} --network ${env.NETWORK} -v mongo-data:/data/db ${env.MONGO_IMAGE}"
+                }
             }
         }
 
        stage('Pull And Build Backend') {
-          steps {
-            withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                    dir('backend') {
-                        sh '''
-                        apt-get update
-                        apt-get install -y maven 
-                        mvn -B -DskipTests clean package
-                        '''
-                    }
-            }
-              // Login to Docker Hub
-            sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}" || error("Failed to login to Docker Hub")
-
-            dir('backend') {
-                // Build, tag, and push Docker image
-                sh "docker build -t ${DOCKER_IMAGE_NAME} ." || error("Failed to build Docker image")
-                sh "docker tag ${DOCKER_IMAGE_NAME} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to tag Docker image")
-                sh "docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to push Docker image")
-            }
-          }
-    }
-        
-
-        stage('Run Custom Backend Container') {
             steps {
-                sh """
-                docker run -d \
-                -p 8080:8080 \
-                --name ${env.BACKEND_CONTAINER_NAME} \
-                --network ${env.NETWORK} \
-                ${env.BACKEND_IMAGE}
-                """
+                script {
+                    def imageExists = sh(script: "docker pull ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}", returnStatus: true) == 0
+        
+                    if (imageExists) {
+                        echo "Image ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER} exists in the registry. Pulling image..."
+                        sh "docker pull ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
+                    } else {
+                        echo "Image ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER} does not exist in the registry. Building locally..."
+        
+                        dir('backend') {
+                            sh '''
+                            apt-get update
+                            apt-get install -y maven 
+                            mvn -B -DskipTests clean package
+                            docker build -t ${env.BACKEND_IMAGE} .
+                            docker tag ${env.BACKEND_IMAGE} ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}
+                            docker push ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}
+                            '''
+                            }
+                    }
+                    sh "docker run -p 8081:8081 -d --name ${env.BACKEND_CONTAINER_NAME} --network ${env.NETWORK} ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
+                }
             }
         }
     }
@@ -90,7 +85,7 @@ pipeline {
             sh "docker stop ${env.BACKEND_CONTAINER_NAME}"
             sh "docker rm ${env.BACKEND_CONTAINER_NAME}"
             sh "docker rmi ${env.MONGO_IMAGE}"
-            sh "docker rmi ${env.BACKEND_IMAGE}"
+            sh "docker rmi ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
             sh "docker network rm ${env.NETWORK}"
         }
     }
