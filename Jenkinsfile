@@ -5,7 +5,7 @@ pipeline {
         MONGO_IMAGE = 'mongo'
         MONGO_VOLUME = 'mongo-data'
         BACKEND_IMAGE = 'backend'
-        BACKEND_DOCKERFILE = './dockerfile'
+        BACKEND_DOCKERFILE = 'dockerfile'
         MONGO_CONTAINER_NAME = 'mongodb'
         BACKEND_CONTAINER_NAME = 'backend'
         NETWORK = 'football-network'
