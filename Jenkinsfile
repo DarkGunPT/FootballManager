@@ -9,6 +9,8 @@ pipeline {
         MONGO_CONTAINER_NAME = 'mongodb'
         BACKEND_CONTAINER_NAME = 'backend'
         NETWORK = 'football-network'
+        DOCKER_HUB_REPO = 'xicosimoes/teste'
+        BACKEND_DOCKERFILE = 'Dockerfile'  // Path to your Dockerfile in the repository
     }
 
     stages {
@@ -49,6 +51,7 @@ pipeline {
                   extensions: [[$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'backend/']]]], 
                   submoduleCfg: [], 
                   userRemoteConfigs: [[url: 'https://github.com/DarkGunPT/FootballManager.git']]])
+                  sh "docker build -t ${DOCKER_HUB_REPO} -f ${env.BACKEND_DOCKERFILE} ."
             }
         }
 
