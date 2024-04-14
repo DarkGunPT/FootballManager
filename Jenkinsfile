@@ -42,7 +42,7 @@ pipeline {
             }
         }
 
-        stage('Pull Custom Backend Code') {
+        stage('Pull And Build Backend') {
             steps {
                 checkout([$class: 'GitSCM', 
                   branches: [[name: 'franciscoSimoes-pipeline']], 
@@ -50,29 +50,9 @@ pipeline {
                   extensions: [[$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'backend/']]]], 
                   submoduleCfg: [], 
                   userRemoteConfigs: [[url: 'https://github.com/DarkGunPT/FootballManager.git',credentialsId : 'fc0cc702-91ef-4479-90e3-8db2202b6d1e']]])
-                  sh "docker build -t ${DOCKER_HUB_REPO} -f ${env.BACKEND_DOCKERFILE} ."
+                  sh "docker build -t ${env.BACKEND_IMAGE} -f ${env.BACKEND_DOCKERFILE} ."
             }
         }
-
-        stage('Build Custom Backend Image') {
-            steps {
-                dir('backend'){
-                    sh "docker build -t ${env.BACKEND_IMAGE} -f ${env.BACKEND_DOCKERFILE} ."                
-                }
-           }
-        }
-
-        stage('Run MongoDB Container') {
-            steps {
-                sh """
-                docker run -d \
-                --name ${env.MONGO_CONTAINER_NAME} \
-                --network ${env.NETWORK} \
-                ${env.MONGO_IMAGE}
-                """
-            }
-        }
-
         stage('Run Custom Backend Container') {
             steps {
                 sh """
