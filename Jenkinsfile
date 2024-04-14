@@ -85,7 +85,7 @@ pipeline {
 
                          if (imageExists) {
                              echo "Image ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE} exists in the registry. Pulling image..."
-                             sh "docker pull ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}"
+                             sh "docker pull ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE}"
                          } else {
                              echo "Image ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE} does not exist in the registry. Building locally..."
 
