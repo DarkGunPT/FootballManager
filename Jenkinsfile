@@ -50,7 +50,7 @@ pipeline {
                     dir('backend') {
                         sh '''
                         apt-get update
-                        apt-get install -y maven=3.9.5
+                        apt-get install -y maven
                         mvn clean install
                         '''
                     }
