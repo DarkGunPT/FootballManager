@@ -20,7 +20,8 @@ pipeline {
         steps {
             script {
                 // Check if the volume already exists
-                def volumeExists = sh(script: "docker volume ls -qf name=${env.MONGO_VOLUME}", returnStatus: true) == 0
+                def volumeCheck = sh(script: "docker volume ls -qf name=${env.MONGO_VOLUME}", returnStdout: true).trim()
+                def volumeExists = volumeCheck != "" 
                 if (!volumeExists) {
                     sh "docker volume create ${env.MONGO_VOLUME}"
                 } else {
