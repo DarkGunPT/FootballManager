@@ -45,27 +45,21 @@ pipeline {
         }
 
        stage('Pull And Build Backend') {
-        steps {
-            checkout([$class: 'GitSCM', 
-                  branches: [[name: 'main']], 
-                  doGenerateSubmoduleConfigurations: false, 
-                  extensions: [[$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'backend/']]]], 
-                  submoduleCfg: [], 
-                  userRemoteConfigs: [[url: 'https://github.com/DarkGunPT/FootballManager.git', credentialsId: 'fc0cc702-91ef-4479-90e3-8db2202b6d1e']]])
-            dir('backend/') {
-                sh '''
-                apt-get update
-                apt-get install -y maven
-                mvn clean install
-                '''
-            }
-            sh "docker build -t ${env.BACKEND_IMAGE} -f backend/${env.BACKEND_DOCKERFILE} backend/"
-            
-            sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
-            sh "docker tag ${env.BACKEND_IMAGE} ${DOCKERHUB_USERNAME}/${env.BACKEND_IMAGE}:latest"
-            sh "docker push ${DOCKERHUB_USERNAME}/${env.BACKEND_IMAGE}:latest"
+          steps {
+            withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    
+                    // Login to Docker Hub
+                    sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+
+                    // Build and tag Docker image
+                    sh "docker build -t ${DOCKER_IMAGE_NAME} ."
+                    sh "docker tag ${DOCKER_IMAGE_NAME} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}"
+                    
+                    // Push Docker image
+                    sh "docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}"
+                }
+          }
     }
-}
         
 
         stage('Run Custom Backend Container') {
