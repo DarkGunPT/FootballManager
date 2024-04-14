@@ -28,7 +28,8 @@ pipeline {
                 }
     
                 // Check if the network already exists
-                def networkExists = sh(script: "docker network ls -qf name=${env.NETWORK}", returnStatus: true).trim() != ""
+                def networkCheck = sh(script: "docker network ls -qf name=${env.NETWORK}", returnStdout: true).trim()
+                def networkExists = networkCheck != ""                
                 if (!networkExists) {
                     sh "docker network create ${env.NETWORK}"
                 } else {
