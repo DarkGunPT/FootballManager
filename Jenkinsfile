@@ -54,6 +54,7 @@ pipeline {
                         apt-get update
                         apt-get install -y maven 
                         mvn -B -DskipTests clean package
+                        docker build -t ${BACKEND_IMAGE} .
                         '''
                     }
     
