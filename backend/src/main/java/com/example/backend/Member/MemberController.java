@@ -10,12 +10,15 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@CrossOrigin(origins = "http://localhost:8081")
 @RestController
 @RequestMapping("/members")
 public class MemberController {
@@ -28,8 +31,9 @@ public class MemberController {
     }
 
     @GetMapping("/search")
-    public List<Member> searchByName(@RequestParam String type, @RequestParam  String value){
+    public List<Member> searchMembers(@RequestParam String type, @RequestParam  String value){
         return switch (type) {
+            case "id" -> repository.findMemberByIdentifier(value);
             case "name" -> repository.findByName(value);
             case "email" -> repository.findByEmail(value);
             case "membership" -> repository.findByMembership(value);
@@ -81,12 +85,17 @@ public class MemberController {
     }
 
     @GetMapping("/login")
-        public boolean login(@RequestParam String email, @RequestParam String password){
+    public Map<String, Object> login(@RequestParam String email, @RequestParam String password) {
+        Map<String, Object> result = new HashMap<>();
         List<Member> existingMember = repository.findByEmail(email);
-        if(!existingMember.isEmpty()){
-            return Objects.equals(existingMember.get(0).getPassword(), password);
+        if (!existingMember.isEmpty() && Objects.equals(existingMember.get(0).getPassword(), password)) {
+            result.put("exists", true);
+            result.put("member", existingMember.get(0));
+        } else {
+            result.put("exists", false);
+            result.put("member", null);
         }
-        return false;
+        return result;
     }
 
     @PatchMapping("/update/{id}")

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            margin-bottom: 5px;
+            display: block;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .membership-label, .balance-label{
+            font-size: 14px; /* Tamanho da fonte */
+            color: #555; /* Cor do texto */
+            margin-right: 5px; /* Margem à direita para separar a label do input */
+        }
+        #membership, #balance {
+            font-size: 14px; /* Tamanho da fonte */
+            padding: 8px; /* Espaçamento interno do input */
+            border: 1px solid #ccc; /* Borda do input */
+            border-radius: 3px; /* Arredondamento das bordas */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Register</h2>
+    <form id="registerForm">
+        <input type="text" id="name" name="name" placeholder="Name" required>
+
+        <label for="membership" class="membership-label">Membership:</label>
+
+        <input type="text" id="membership" name="membership" value="VIP" required disabled><br>
+
+        <input type="email" id="email" name="email" placeholder="Email" required>
+
+        <input type="password" id="password" name="password" placeholder="Password" required>
+
+
+        <label for="balance" class="balance-label">Balance:</label>
+
+        <input type="number" id="balance" name="balance" value="50" placeholder="Balance" required disabled>
+
+        <button type="submit">Register</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById("registerForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        var name = document.getElementById("name").value;
+        var membership = document.getElementById("membership").value;
+        var email = document.getElementById("email").value;
+        var password = document.getElementById("password").value;
+        var balance = document.getElementById("balance").value;
+
+        // Construindo o objeto de dados
+        var data = {
+            name: name,
+            membership: membership,
+            email: email,
+            password: password,
+            balance: balance
+        };
+
+        // Enviando uma solicitação POST para o endpoint /create no seu backend
+        fetch("http://localhost:8080/members/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Lidando com a resposta do servidor
+                alert("Register successful!");
+                // Redirecionar para a página de login ou executar outras ações necessárias
+                window.location.href = "login";
+            })
+            .catch(error => {
+                console.error("Error on register:", error);
+                alert("Error on register. Please, try again.");
+            });
+    });
+</script>
+</body>
+</html>

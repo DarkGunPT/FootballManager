@@ -16,6 +16,8 @@ public interface MemberRepository extends MongoRepository<Member, Integer> {
     @Query("{'membership' : ?0}")
     List<Member> findByMembership(String email);
     @Query("{'id' : ?0}")
+    List<Member> findMemberByIdentifier(String id);
+    @Query("{'id' : ?0}")
     Member findByIdentifier(String id);
     @DeleteQuery("{'id' : ?0}")
     Member deleteByIdentifier(String id);

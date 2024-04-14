@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login or Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        button#registerButton {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        button#registerButton {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        button#registerButton:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Login</h2>
+    <form id="loginForm" action="login" method="post">
+        <input type="text" name="email" id="email" placeholder="Email" required>
+        <input type="password" name="password" id="password" placeholder="Password" required>
+        <input type="submit" value="Login">
+    </form>
+
+    <!-- Adicionando o botão de registro -->
+    <button id="registerButton">Register</button>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+
+            // Enviando uma solicitação POST para o endpoint /login no seu backend
+            fetch("http://localhost:8080/members/login?email=" + email + "&password=" + password, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.exists) {
+                        alert("Login successfull!");
+                        window.location.href = "homepage?member=" + encodeURIComponent(JSON.stringify(data.member));
+                    } else {
+                        alert("Wrong credentials. Please, try again.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error in the request:', error);
+                });
+        });
+
+        // Adicionando um evento de clique ao botão de registro para redirecionar para registro.html
+        document.getElementById("registerButton").addEventListener("click", function() {
+            window.location.href = "register";
+        });
+    </script>
+</div>
+</body>
+</html>
