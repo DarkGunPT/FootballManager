@@ -5,14 +5,15 @@ pipeline {
         MONGO_IMAGE = 'mongo'
         MONGO_VOLUME = 'mongo-data'
         BACKEND_IMAGE = 'backend'
+        BACKEND_IMAGE = 'frontend'
         BACKEND_DOCKERFILE = 'dockerfile'
         MONGO_CONTAINER_NAME = 'mongodb'
         BACKEND_CONTAINER_NAME = 'backend'
+        FRONTEND_CONTAINER_NAME = 'backend'
         NETWORK = 'footballNetwork'
         DOCKER_HUB_REPO = 'xicosimoes/teste'
         DOCKERHUB_USERNAME = ''
         DOCKERHUB_PASSWORD = ''
-        BUILD_NUMBER='1'
     }
 
     stages {
@@ -21,16 +22,16 @@ pipeline {
             script {
                 // Check if the volume already exists
                 def volumeCheck = sh(script: "docker volume ls -qf name=${env.MONGO_VOLUME}", returnStdout: true).trim()
-                def volumeExists = volumeCheck != "" 
+                def volumeExists = volumeCheck != ""
                 if (!volumeExists) {
                     sh "docker volume create ${env.MONGO_VOLUME}"
                 } else {
                     echo "Volume ${env.MONGO_VOLUME} already exists."
                 }
-    
+
                 // Check if the network already exists
                 def networkCheck = sh(script: "docker network ls -qf name=${env.NETWORK}", returnStdout: true).trim()
-                def networkExists = networkCheck != ""                
+                def networkExists = networkCheck != ""
                 if (!networkExists) {
                     sh "docker network create ${env.NETWORK}"
                 } else {
@@ -40,7 +41,7 @@ pipeline {
         }
       }
 
-        
+
         stage('Pull And Run MongoDB') {
             steps {
                 script{
@@ -52,30 +53,57 @@ pipeline {
        stage('Pull And Build Backend') {
             steps {
                 script {
-                    def imageExists = sh(script: "docker pull ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}", returnStatus: true) == 0
-        
+                    def imageExists = sh(script: "docker pull ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}", returnStatus: true) == 0
+
                     if (imageExists) {
-                        echo "Image ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER} exists in the registry. Pulling image..."
-                        sh "docker pull ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
+                        echo "Image ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE} exists in the registry. Pulling image..."
+                        sh "docker pull ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}"
                     } else {
-                        echo "Image ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER} does not exist in the registry. Building locally..."
-        
+                        echo "Image ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE} does not exist in the registry. Building locally..."
+
                         dir('backend') {
                             sh '''
                             apt-get update
-                            apt-get install -y maven 
+                            apt-get install -y maven
                             mvn -B -DskipTests clean package
                             docker build -t ${env.BACKEND_IMAGE} .
-                            docker tag ${env.BACKEND_IMAGE} ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}
-                            docker push ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}
+                            docker tag ${env.BACKEND_IMAGE} ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}
+                            docker push ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}
                             '''
                             }
                     }
-                    sh "docker run -p 8081:8081 -d --name ${env.BACKEND_CONTAINER_NAME} --network ${env.NETWORK} ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
+                    sh "docker run -p 8082:8082 -d --name ${env.BACKEND_CONTAINER_NAME} --network ${env.NETWORK} ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}"
                 }
             }
         }
     }
+
+     stage('Pull And Build Frontend') {
+                 steps {
+                     script {
+                         def imageExists = sh(script: "docker pull ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE}", returnStatus: true) == 0
+
+                         if (imageExists) {
+                             echo "Image ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE} exists in the registry. Pulling image..."
+                             sh "docker pull ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}"
+                         } else {
+                             echo "Image ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE} does not exist in the registry. Building locally..."
+
+                             dir('backend') {
+                                 sh '''
+                                 apt-get update
+                                 apt-get install -y maven
+                                 mvn -B -DskipTests clean package
+                                 docker build -t ${env.FRONTEND_IMAGE} .
+                                 docker tag ${env.FRONTEND_IMAGE} ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE}
+                                 docker push ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE}
+                                 '''
+                                 }
+                         }
+                         sh "docker run -p 8081:8081 -d --name ${env.FRONTEND_CONTAINER_NAME} --network ${env.NETWORK} ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE}"
+                     }
+                 }
+             }
 
     post {
         always {
@@ -85,7 +113,8 @@ pipeline {
             sh "docker stop ${env.BACKEND_CONTAINER_NAME}"
             sh "docker rm ${env.BACKEND_CONTAINER_NAME}"
             sh "docker rmi ${env.MONGO_IMAGE}"
-            sh "docker rmi ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
+            sh "docker rmi ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE}"
+            sh "docker rmi ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}"
             sh "docker network rm ${env.NETWORK}"
         }
     }
