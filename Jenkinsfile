@@ -50,7 +50,7 @@ pipeline {
                     dir('backend') {
                         sh '''
                         apt-get update
-                        apt-get install -y maven openjdk-17-jdk
+                        apt-get install -y maven openjdk-19-jdk
                         mvn clean install
                         '''
                     }
