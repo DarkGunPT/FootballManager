@@ -93,8 +93,9 @@ pipeline {
 
                         dir('frontend') {  // Corrected the directory name to 'frontend'
                             sh '''
-                            npm install
-                            npm run build
+                            apt-get update
+                            apt-get install -y maven
+                            mvn -B -DskipTests clean package
                             docker build -t $FRONTEND_IMAGE .
                             docker tag $FRONTEND_IMAGE $DOCKER_HUB_REPO:$FRONTEND_IMAGE
                             docker push $DOCKER_HUB_REPO:$FRONTEND_IMAGE
@@ -104,22 +105,6 @@ pipeline {
                     sh "docker run -p 8081:8081 -d --name $FRONTEND_CONTAINER_NAME --network $NETWORK $DOCKER_HUB_REPO:$FRONTEND_IMAGE"
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            cleanWs()
-            sh "docker stop ${env.MONGO_CONTAINER_NAME}"
-            sh "docker rm ${env.MONGO_CONTAINER_NAME}"
-            sh "docker stop ${env.BACKEND_CONTAINER_NAME}"
-            sh "docker rm ${env.BACKEND_CONTAINER_NAME}"
-            sh "docker stop ${env.FRONTEND_CONTAINER_NAME}"  // Stop the frontend container
-            sh "docker rm ${env.FRONTEND_CONTAINER_NAME}"     // Remove the frontend container
-            sh "docker rmi ${env.MONGO_IMAGE}"
-            sh "docker rmi ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE}"
-            sh "docker rmi ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}"
-            sh "docker network rm ${env.NETWORK}"
         }
     }
 }
