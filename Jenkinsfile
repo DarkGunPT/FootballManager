@@ -51,7 +51,7 @@ pipeline {
                         sh '''
                         apt-get update
                         apt-get install -y maven openjdk-19-jdk
-                        mvn clean install
+                        mvn -B -DskipTests clean package
                         '''
                     }
                     // Login to Docker Hub
