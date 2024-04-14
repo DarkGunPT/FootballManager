@@ -12,12 +12,28 @@ pipeline {
     }
 
     stages {
-        stage('Create Volume') {
-            steps {
-                sh "docker volume create ${env.MONGO_VOLUME}"
-                sh "docker network create ${env.NETWORK}"
+       stage('Create Volume') {
+        steps {
+            script {
+                // Check if the volume already exists
+                def volumeExists = sh(script: "docker volume ls -qf name=${env.MONGO_VOLUME}", returnStatus: true) == 0
+                if (!volumeExists) {
+                    sh "docker volume create ${env.MONGO_VOLUME}"
+                } else {
+                    echo "Volume ${env.MONGO_VOLUME} already exists."
+                }
+    
+                // Check if the network already exists
+                def networkExists = sh(script: "docker network ls -qf name=${env.NETWORK}", returnStatus: true) == 0
+                if (!networkExists) {
+                    sh "docker network create ${env.NETWORK}"
+                } else {
+                    echo "Network ${env.NETWORK} already exists."
+                }
             }
         }
+      }
+
         
         stage('Pull MongoDB Image') {
             steps {
