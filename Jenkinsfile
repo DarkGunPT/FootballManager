@@ -10,6 +10,8 @@ pipeline {
         BACKEND_CONTAINER_NAME = 'backend'
         NETWORK = 'football-network'
         DOCKER_HUB_REPO = 'xicosimoes/teste'
+        DOCKERHUB_USERNAME = ''
+        DOCKERHUB_PASSWORD = ''
     }
 
     stages {
@@ -58,8 +60,13 @@ pipeline {
                 '''
             }
             sh "docker build -t ${env.BACKEND_IMAGE} -f backend/${env.BACKEND_DOCKERFILE} backend/"
+            
+            sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+            sh "docker tag ${env.BACKEND_IMAGE} ${DOCKERHUB_USERNAME}/${env.BACKEND_IMAGE}:latest"
+            sh "docker push ${DOCKERHUB_USERNAME}/${env.BACKEND_IMAGE}:latest"
     }
 }
+        
 
         stage('Run Custom Backend Container') {
             steps {
