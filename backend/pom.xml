@@ -58,6 +58,24 @@
 			</releases>
 		</repository>
 	</repositories>
+	<build>
+    		<plugins>
+        		<plugin>
+            			<groupId>org.springframework.boot</groupId>
+            			<artifactId>spring-boot-maven-plugin</artifactId>
+        		</plugin>
+
+        <!-- Update maven-compiler-plugin -->
+        		<plugin>
+            			<groupId>org.apache.maven.plugins</groupId>
+            			<artifactId>maven-compiler-plugin</artifactId>
+            			<version>3.11.0</version>
+            			<configuration>
+                			<release>19</release> <!-- Specify the Java version here -->
+            			</configuration>
+       			</plugin>
+    		</plugins>
+	</build>
 	<pluginRepositories>
 		<pluginRepository>
 			<id>spring-milestones</id>
