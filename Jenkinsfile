@@ -47,7 +47,13 @@ pipeline {
        stage('Pull And Build Backend') {
           steps {
             withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                    
+                    dir('backend/') {
+                        sh '''
+                        apt-get update
+                        apt-get install -y maven
+                        mvn clean install
+                        '''
+                    }
                     // Login to Docker Hub
                     sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
 
