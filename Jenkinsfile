@@ -37,6 +37,10 @@ pipeline {
                     } else {
                         echo "Network ${env.NETWORK} already exists."
                     }
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
+                    // Login to Docker
+                    sh "echo ${env.DOCKERHUB_PASSWORD} | docker login -u ${env.DOCKERHUB_USERNAME} --password-stdin"
+                }
                 }
             }
         }
