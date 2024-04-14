@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         MONGO_IMAGE = 'mongo'
+        MONGO_VOLUME = 'mongo-data'
         BACKEND_IMAGE = 'backend'
         BACKEND_DOCKERFILE = './dockerfile'
         MONGO_CONTAINER_NAME = 'mongodb'
@@ -13,8 +14,8 @@ pipeline {
     stages {
         stage('Create Volume') {
             steps {
-                sh 'docker volume create mongo-data'
-                sh 'docker network create ${env.NETWORK}'
+                sh 'docker volume create ${env.MONGO_VOLUME}'
+                sh "docker network create ${env.NETWORK}"
             }
         }
         
