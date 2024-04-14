@@ -65,8 +65,8 @@ pipeline {
                 sh "docker tag ${DOCKER_IMAGE_NAME} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to tag Docker image")
                 sh "docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to push Docker image")
             }
-          }
-    }
+           }
+         }
         
 
         stage('Run Custom Backend Container') {
