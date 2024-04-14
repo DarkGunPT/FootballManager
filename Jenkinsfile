@@ -75,7 +75,7 @@ pipeline {
                             '''
                         }
                     }
-                    sh "docker run -p 8082:8082 -d --name $BACKEND_CONTAINER_NAME --network $NETWORK $DOCKER_HUB_REPO:$BACKEND_IMAGE"
+                    sh "docker run -p 8080:8080 -d --name $BACKEND_CONTAINER_NAME --network $NETWORK $DOCKER_HUB_REPO:$BACKEND_IMAGE"
                 }
             }
         }
