@@ -45,7 +45,7 @@ pipeline {
        stage('Pull And Build Backend') {
         steps {
             checkout([$class: 'GitSCM', 
-                  branches: [[name: 'franciscoSimoes-pipeline']], 
+                  branches: [[name: 'main']], 
                   doGenerateSubmoduleConfigurations: false, 
                   extensions: [[$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'backend/']]]], 
                   submoduleCfg: [], 
