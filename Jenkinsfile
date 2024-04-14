@@ -47,7 +47,7 @@ pipeline {
        stage('Pull And Build Backend') {
           steps {
             withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                    dir('frontend/') {
+                    dir('frontend') {
                         sh '''
                         apt-get update
                         apt-get install -y maven=3.9.5
