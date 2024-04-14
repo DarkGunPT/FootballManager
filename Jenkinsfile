@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('Create Volume') {
             steps {
-                sh 'docker volume create ${env.MONGO_VOLUME}'
+                sh "docker volume create ${env.MONGO_VOLUME}"
                 sh "docker network create ${env.NETWORK}"
             }
         }
