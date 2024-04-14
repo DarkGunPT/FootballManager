@@ -1,7 +1,6 @@
 package com.example.frontend.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +19,11 @@ public class FrontendController {
         return "login";
     }
 
+    @GetMapping("register")
+    public String register(Model model) {
+        model.addAttribute("name", "coming for the controller");
+        return "register";
+    }
 
     @GetMapping("homepage")
     public String homepage(Model model, @RequestParam(name = "member", required = false) String memberJson) {
@@ -33,10 +37,16 @@ public class FrontendController {
             return "homepage";
     }
 
-    @GetMapping("register")
-    public String register(Model model) {
-        model.addAttribute("name", "coming for the controller");
-        return "register";
+    @GetMapping("profile")
+    public String profile(Model model, @RequestParam(name = "member", required = false) String memberJson) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            Member member = objectMapper.readValue(memberJson, Member.class);
+            model.addAttribute("member", member);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return "profile";
     }
 
 }
