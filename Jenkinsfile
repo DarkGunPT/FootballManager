@@ -50,8 +50,8 @@ pipeline {
             // Login to Docker Hub
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                     sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}" || error("Failed to login to Docker Hub")
-    
-                    dir('backend') {
+                }
+                dir('backend') {
                         sh '''
                         apt-get update
                         apt-get install -y maven 
@@ -65,7 +65,6 @@ pipeline {
                         sh "docker tag ${BACKEND_IMAGE} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to tag Docker image")
                         sh "docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}" || error("Failed to push Docker image")
                     }
-                }
             }
         }
     }
