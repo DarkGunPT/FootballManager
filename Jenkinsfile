@@ -53,7 +53,7 @@ pipeline {
                         apt-get install -y maven 
                         mvn -B -DskipTests clean package
                         '''
-                    }
+                    
                     // Login to Docker Hub
                     sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
 
@@ -63,6 +63,7 @@ pipeline {
                     
                     // Push Docker image
                     sh "docker push ${DOCKER_HUB_REPO}:${BUILD_NUMBER}"
+                    }
                 }
           }
     }
