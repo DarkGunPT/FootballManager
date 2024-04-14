@@ -48,9 +48,7 @@ pipeline {
        stage('Pull And Build Backend') {
             steps {
             // Login to Docker Hub
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                    sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}" || error("Failed to login to Docker Hub")
-                }
+               
                 dir('backend') {
                         sh '''
                         apt-get update
