@@ -67,6 +67,7 @@ pipeline {
                             '''
                             }
                     }
+                    sh "docker run -p 8080:8080 -d --name ${env.BACKEND_CONTAINER_NAME} --network ${env.NETWORK} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}"
                 }
             }
         }
