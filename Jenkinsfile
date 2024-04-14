@@ -14,6 +14,7 @@ pipeline {
         stage('Create Volume') {
             steps {
                 sh 'docker volume create mongo-data'
+                sh 'docker network create football-network'
             }
         }
         
@@ -25,14 +26,21 @@ pipeline {
 
         stage('Pull Custom Backend Code') {
             steps {
-                checkout scm
+                checkout([$class: 'GitSCM', 
+                  branches: [[name: 'main']], 
+                  doGenerateSubmoduleConfigurations: false, 
+                  extensions: [[$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'backend/']]]], 
+                  submoduleCfg: [], 
+                  userRemoteConfigs: [[url: 'https://github.com/DarkGunPT/FootballManager.git']]])
             }
         }
 
         stage('Build Custom Backend Image') {
             steps {
-                sh "docker build -t ${env.BACKEND_IMAGE} -f ${env.BACKEND_DOCKERFILE} ."
-            }
+                dir('backend'){
+                    sh "docker build -t ${env.BACKEND_IMAGE} -f ${env.BACKEND_DOCKERFILE} ."                
+                }
+           }
         }
 
         stage('Run MongoDB Container') {
