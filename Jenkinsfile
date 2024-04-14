@@ -42,17 +42,18 @@ pipeline {
             }
         }
 
-        stage('Pull And Build Backend') {
-            steps {
-                checkout([$class: 'GitSCM', 
+       stage('Pull And Build Backend') {
+        steps {
+            checkout([$class: 'GitSCM', 
                   branches: [[name: 'franciscoSimoes-pipeline']], 
                   doGenerateSubmoduleConfigurations: false, 
                   extensions: [[$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'backend/']]]], 
                   submoduleCfg: [], 
-                  userRemoteConfigs: [[url: 'https://github.com/DarkGunPT/FootballManager.git',credentialsId : 'fc0cc702-91ef-4479-90e3-8db2202b6d1e']]])
-                  sh "docker build -t ${env.BACKEND_IMAGE} -f /backend/${env.BACKEND_DOCKERFILE} ."
-            }
-        }
+                  userRemoteConfigs: [[url: 'https://github.com/DarkGunPT/FootballManager.git', credentialsId: 'fc0cc702-91ef-4479-90e3-8db2202b6d1e']]])
+            sh "docker build -t ${env.BACKEND_IMAGE} -f backend/${env.BACKEND_DOCKERFILE} backend/"
+    }
+}
+
         stage('Run Custom Backend Container') {
             steps {
                 sh """
