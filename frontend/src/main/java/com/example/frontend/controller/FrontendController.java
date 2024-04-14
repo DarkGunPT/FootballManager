@@ -20,6 +20,7 @@ public class FrontendController {
         return "login";
     }
 
+
     @GetMapping("homepage")
     public String homepage(Model model, @RequestParam(name = "member", required = false) String memberJson) {
             ObjectMapper objectMapper = new ObjectMapper();
