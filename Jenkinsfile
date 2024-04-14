@@ -85,7 +85,7 @@ pipeline {
             sh "docker stop ${env.BACKEND_CONTAINER_NAME}"
             sh "docker rm ${env.BACKEND_CONTAINER_NAME}"
             sh "docker rmi ${env.MONGO_IMAGE}"
-            sh "docker rmi ${env.BACKEND_IMAGE}"
+            sh "docker rmi ${env.DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
             sh "docker network rm ${env.NETWORK}"
         }
     }
