@@ -27,7 +27,7 @@ pipeline {
         stage('Pull Custom Backend Code') {
             steps {
                 checkout([$class: 'GitSCM', 
-                  branches: [[name: 'main']], 
+                  branches: [[name: 'franciscoSimoes-pipeline']], 
                   doGenerateSubmoduleConfigurations: false, 
                   extensions: [[$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'backend/']]]], 
                   submoduleCfg: [], 
