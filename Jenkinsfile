@@ -37,7 +37,7 @@ pipeline {
         
         stage('Pull And Run MongoDB') {
             steps {
-                sh "docker run -p 27017:27017 -d --name ${env.MONGO_IMAGE} --network football-network -v mongo-data:/data/db ${env.MONGO_IMAGE}"
+                sh "docker run -p 27017:27017 -d --name ${env.MONGO_CONTAINER_NAME} --network football-network -v mongo-data:/data/db ${env.MONGO_IMAGE}"
             }
         }
 
