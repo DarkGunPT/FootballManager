@@ -10,6 +10,40 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+
+            background-image: url('https://wallpapers.com/images/featured/cool-soccer-xx9ly9v0yostbag2.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+        }
+        .topnav {
+            overflow: hidden;
+            text-align: center;
+            padding-top: 10px;
+        }
+        .topnav button {
+            display: inline-block;
+            text-align: center;
+            padding: 16px 18px;
+            text-decoration: none;
+            background-color: #007bff;
+            color: #fff;
+            margin: 0 1px;
+            border-radius: 7px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            width: 125px;
+            height: 50px;
+        }
+        .topnav button:hover {
+            background-color: #0056b3;
         }
         .profile-container {
             max-width: 400px;
@@ -32,6 +66,11 @@
     </style>
 </head>
 <body>
+<div class="topnav">
+    <button id="homepage">Homepage</button>
+    <button id="payments">Payments</button>
+</div>
+
 <div class="profile-container">
     <h2 class="profile-heading">User Profile</h2>
     <div class="profile-data">
@@ -68,6 +107,10 @@
     document.getElementById("profile-email").textContent = member.email;
     document.getElementById("profile-balance").textContent = member.balance;
     document.getElementById("profile-admission-date").textContent = member.admissionDate;
+
+    document.getElementById("homepage").addEventListener("click", function() {
+        window.location.href = "homepage?member=" + encodeURIComponent(JSON.stringify(member));
+    });
 
 </script>
 </body>
