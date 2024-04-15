@@ -11,9 +11,12 @@ import java.util.List;
 
 @Repository
 public interface PaymentsRepository extends MongoRepository<Payments, Integer> {
-    @Query("{'memberId' : ?0}")
+    @Query("{'$or':[{'paymentFrom' : ?0}, {'paymentTo': ?0}]}")
     List<Payments> findByMemberId(String id);
-
+    @Query("{'paymentFrom' : ?0}")
+    List<Payments> findPaymentsFrom(String id);
+    @Query("{'paymentTo' : ?0}")
+    List<Payments> findPaymentsTo(String id);
     @Query("{'id' : ?0}")
     Payments findByIdentifier(String id);
 

@@ -25,16 +25,19 @@
         .topnav {
             overflow: hidden;
             text-align: center;
-            padding-top: 10px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+
         .topnav button {
             display: inline-block;
             text-align: center;
-            padding: 16px 18px;
             text-decoration: none;
             background-color: #007bff;
             color: #fff;
-            margin: 0 1px;
+            margin: 0 3px;
             border-radius: 7px;
             border: none;
             font-size: 16px;
@@ -67,8 +70,10 @@
 </head>
 <body>
 <div class="topnav">
-    <button id="homepage">Homepage</button>
-    <button id="payments">Payments</button>
+    <button id="homepage">Profile</button>
+    <button id="outgoingPayments">Outgoing Payments</button>
+    <button id="incomingPayments">Incoming Payments</button>
+    <button id="historicPayments">Payments Historic</button>
 </div>
 
 <div class="profile-container">
@@ -86,7 +91,7 @@
         <span id="profile-email"></span>
     </div>
     <div class="profile-data">
-        <span class="profile-label">Balance:</span>
+        <span class="profile-label" id="balance-label"></span>
         <span id="profile-balance"></span>
     </div>
     <div class="profile-data">
@@ -101,7 +106,11 @@
     const memberData = urlParams.get('member');
 
     const member = JSON.parse(decodeURIComponent(memberData));
-
+    if(member.membership==="VIP"){
+        document.getElementById("balance-label").textContent = "Subscription:"
+    }else{
+        document.getElementById("balance-label").textContent = "Salary:"
+    }
     document.getElementById("profile-name").textContent = member.name;
     document.getElementById("profile-membership").textContent = member.membership;
     document.getElementById("profile-email").textContent = member.email;
@@ -110,6 +119,16 @@
 
     document.getElementById("homepage").addEventListener("click", function() {
         window.location.href = "homepage?member=" + encodeURIComponent(JSON.stringify(member));
+    });
+
+    document.getElementById("outgoingPayments").addEventListener("click", function() {
+        window.location.href = "payments/toPay";
+    });
+    document.getElementById("incomingPayments").addEventListener("click", function() {
+        window.location.href = "payments/toReceive";
+    });
+    document.getElementById("historicPayments").addEventListener("click", function() {
+        window.location.href = "payments/historic";
     });
 
 </script>

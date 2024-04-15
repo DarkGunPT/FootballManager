@@ -5,7 +5,7 @@ public enum Membership {
     ADMIN("ADMIN"),
     PLAYER("PLAYER"),
     COACH("COACH"),
-    EXECUTIVE("VIP"),
+    BOARD("BOARD"),
     PRESIDENT("PRESIDENT");
     private final String description;
 

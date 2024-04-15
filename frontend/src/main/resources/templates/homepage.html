@@ -28,16 +28,19 @@
         .topnav {
             overflow: hidden;
             text-align: center;
-            padding-top: 10px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+
         .topnav button {
             display: inline-block;
             text-align: center;
-            padding: 16px 18px;
             text-decoration: none;
             background-color: #007bff;
             color: #fff;
-            margin: 0 1px;
+            margin: 0 3px;
             border-radius: 7px;
             border: none;
             font-size: 16px;
@@ -53,9 +56,10 @@
 <body>
 <div class="topnav">
     <button id="profile">Profile</button>
-    <button id="payments">Payments</button>
+    <button id="outgoingPayments">Outgoing Payments</button>
+    <button id="incomingPayments">Incoming Payments</button>
+    <button id="historicPayments">Payments Historic</button>
 </div>
-
 <div class="container">
     Welcome to the Club Manager, <span id="memberName"></span>
 </div>
@@ -65,7 +69,7 @@
 
     const memberData = urlParams.get('member');
 
-    const member = JSON.parse(decodeURIComponent(memberData));
+    const member = JSON.parse(decodeURIComponent(memberData))
 
     document.getElementById("memberName").textContent = member.name;
 
@@ -73,6 +77,15 @@
         window.location.href = "profile?member=" + encodeURIComponent(JSON.stringify(member));
     });
 
+    document.getElementById("outgoingPayments").addEventListener("click", function() {
+        window.location.href = "payments/toPay";
+    });
+    document.getElementById("incomingPayments").addEventListener("click", function() {
+        window.location.href = "payments/toReceive";
+    });
+    document.getElementById("historicPayments").addEventListener("click", function() {
+        window.location.href = "payments/historic";
+    });
 </script>
 </body>
 </html>

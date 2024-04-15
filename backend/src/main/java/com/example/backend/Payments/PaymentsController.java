@@ -1,5 +1,6 @@
 package com.example.backend.Payments;
 
+import com.example.backend.Member.Membership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,5 +55,15 @@ public class PaymentsController {
     @GetMapping("/{memberId}")
     public List<Payments> memberPayments(@PathVariable String memberId){
         return repository.findByMemberId(memberId);
+    }
+
+    @GetMapping("/from/{memberId}")
+    public List<Payments> memberPaymentsFrom(@PathVariable String memberId){
+        return repository.findPaymentsFrom(memberId);
+    }
+
+    @GetMapping("/to/{memberId}")
+    public List<Payments> memberPaymentsTo(@PathVariable String memberId){
+        return repository.findPaymentsTo(memberId);
     }
 }
