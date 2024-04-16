@@ -49,4 +49,16 @@ public class FrontendController {
         return "profile";
     }
 
+    @GetMapping("outgoingPayments")
+    public String outgoingPayments(Model model, @RequestParam(name = "member", required = false) String memberJson) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            Member member = objectMapper.readValue(memberJson, Member.class);
+            model.addAttribute("member", member);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return "outgoingPayments";
+    }
+
 }

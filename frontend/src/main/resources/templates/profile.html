@@ -70,7 +70,7 @@
 </head>
 <body>
 <div class="topnav">
-    <button id="homepage">Profile</button>
+    <button id="homepage">Homepage</button>
     <button id="outgoingPayments">Outgoing Payments</button>
     <button id="incomingPayments">Incoming Payments</button>
     <button id="historicPayments">Payments Historic</button>
@@ -122,13 +122,13 @@
     });
 
     document.getElementById("outgoingPayments").addEventListener("click", function() {
-        window.location.href = "payments/toPay";
+        window.location.href = "outgoingPayments?member=" + encodeURIComponent(JSON.stringify(member));
     });
     document.getElementById("incomingPayments").addEventListener("click", function() {
-        window.location.href = "payments/toReceive";
+        window.location.href = "incomingPayments?member=" + encodeURIComponent(JSON.stringify(member));
     });
     document.getElementById("historicPayments").addEventListener("click", function() {
-        window.location.href = "payments/historic";
+        window.location.href = "historicPayments?member=" + encodeURIComponent(JSON.stringify(member));
     });
 
 </script>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outgoing Payments</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+
+            background-image: url('https://wallpapers.com/images/featured/cool-soccer-xx9ly9v0yostbag2.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+        }
+        .container {
+            padding-top: 135px;
+            text-align: center;
+            color: #fff;
+            border: none;
+        }
+        .topnav {
+            overflow: hidden;
+            text-align: center;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .topnav button {
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            background-color: #007bff;
+            color: #fff;
+            margin: 0 3px;
+            border-radius: 7px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            width: 125px;
+            height: 50px;
+        }
+        .topnav button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #0056b3;
+            padding: 5px;
+            text-align: center;
+        }
+        th {
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #0056b3;
+        }
+        td {
+            font-size: 20px;
+        }
+        tr {
+            background-color: #007bff;
+        }
+        tr:hover {
+            background-color: #0056b3;
+        }
+        .payButton {
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition-duration: 0.4s;
+        }
+        .payButton:hover {
+            background-color: #45a049;
+        }
+        #table-scroll {
+            margin: 0 auto 20px;
+            width: 55%;
+            height:500px;
+            overflow:auto;
+        }
+    </style>
+</head>
+<body>
+<div class="topnav">
+    <button id="homepage">Homepage</button>
+    <button id="profile">Profile</button>
+    <button id="incomingPayments">Incoming Payments</button>
+    <button id="historicPayments">Payments Historic</button>
+</div>
+<div class="container">
+    <div id="table-scroll">
+    <table id="paymentsTable">
+        <thead>
+        <tr>
+            <th>Pay to</th>
+            <th>Until</th>
+            <th>Amount</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const memberData = urlParams.get('member');
+
+    const member = JSON.parse(decodeURIComponent(memberData));
+
+    function fetchOutgoingPayments(memberId) {
+        fetch("http://localhost:8080/payments/from/" + memberId, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                return response.json();
+            })
+            .then(payments => {
+                document.getElementById("paymentsTable").querySelector("tbody").innerHTML = "";
+
+                nonPaidPayments = payments.sort((a, b) => new Date(a.date) - new Date(b.date)).filter(payment => !payment.paid);
+
+                // Adicionar cada pagamento à tabela
+                nonPaidPayments.forEach(payment => {
+                    const row = `
+                    <tr>
+                        <td>${payment.paymentTo}</td>
+                        <td>${payment.date}</td>
+                        <td>${payment.value}</td>
+                        <td><button class="payButton" onclick="pay('${payment.id}')">Pay</button></td>
+                    </tr>
+                `;
+                    document.getElementById("paymentsTable").querySelector("tbody").innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching payments:', error);
+            });
+    }
+
+    fetchOutgoingPayments(member.id);
+
+    const pay = (paymentId) => {
+        fetch("http://localhost:8080/payments/pay/" + paymentId, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("Failed to pay payment.");
+                }
+            })
+            .then(data => {
+                alert("Payment made successfully!");
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error("Error paying payment:", error);
+                alert("Failed to make payment. Please try again later.");
+            });
+    }
+
+    document.getElementById("homepage").addEventListener("click", function() {
+        window.location.href = "homepage?member=" + encodeURIComponent(JSON.stringify(member));
+    });
+    document.getElementById("profile").addEventListener("click", function() {
+        window.location.href = "profile?member=" + encodeURIComponent(JSON.stringify(member));
+    });
+    document.getElementById("incomingPayments").addEventListener("click", function() {
+        window.location.href = "incomingPayments?member=" + encodeURIComponent(JSON.stringify(member));
+    });
+    document.getElementById("historicPayments").addEventListener("click", function() {
+        window.location.href = "historicPayments?member=" + encodeURIComponent(JSON.stringify(member));
+    });
+
+</script>
+</body>
+</html>
