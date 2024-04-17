@@ -67,10 +67,10 @@
             font-size: 20px;
         }
         tr {
-            background-color: #007bff;
+            background-color: #5f94ce;
         }
         tr:hover {
-            background-color: #0056b3;
+            background-color: #007bff;
         }
         .payButton {
             font-weight: bold;
@@ -102,7 +102,7 @@
     <button id="homepage">Homepage</button>
     <button id="profile">Profile</button>
     <button id="incomingPayments">Incoming Payments</button>
-    <button id="historicPayments">Payments Historic</button>
+    <button id="paymentsHistoric">Payments Historic</button>
 </div>
 <div class="container">
     <div id="table-scroll">
@@ -142,14 +142,14 @@
             .then(payments => {
                 document.getElementById("paymentsTable").querySelector("tbody").innerHTML = "";
 
-                nonPaidPayments = payments.sort((a, b) => new Date(a.date) - new Date(b.date)).filter(payment => !payment.paid);
+                var nonPaidPayments = payments.sort((a, b) => new Date(a.limitDate) - new Date(b.limitDate)).filter(payment => !payment.paid);
 
                 // Adicionar cada pagamento à tabela
                 nonPaidPayments.forEach(payment => {
                     const row = `
                     <tr>
-                        <td>${payment.paymentTo}</td>
-                        <td>${payment.date}</td>
+                        <td>${payment.paymentTo.name}</td>
+                        <td>${payment.limitDate}</td>
                         <td>${payment.value}</td>
                         <td><button class="payButton" onclick="pay('${payment.id}')">Pay</button></td>
                     </tr>
@@ -197,8 +197,8 @@
     document.getElementById("incomingPayments").addEventListener("click", function() {
         window.location.href = "incomingPayments?member=" + encodeURIComponent(JSON.stringify(member));
     });
-    document.getElementById("historicPayments").addEventListener("click", function() {
-        window.location.href = "historicPayments?member=" + encodeURIComponent(JSON.stringify(member));
+    document.getElementById("paymentsHistoric").addEventListener("click", function() {
+        window.location.href = "paymentsHistoric?member=" + encodeURIComponent(JSON.stringify(member));
     });
 
 </script>

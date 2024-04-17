@@ -12,18 +12,20 @@ import java.util.UUID;
 public class Payments {
     @Id
     public String id;
-    public String paymentFrom;
-    public String paymentTo;
+    public PaymentInfo paymentFrom;
+    public PaymentInfo paymentTo;
     public double value;
     public boolean paid;
-    public LocalDate date;
+    public LocalDate limitDate;
+    public LocalDate paymentDate;
 
-    public Payments(String paymentFrom, String paymentTo, double value, LocalDate date){
+    public Payments(PaymentInfo paymentFrom, PaymentInfo paymentTo, double value, LocalDate limitDate, LocalDate paymentDate){
         this.id = UUID.randomUUID().toString();
         this.paymentFrom = paymentFrom;
         this.paymentTo = paymentTo;
         this.value = value;
         this.paid = false;
-        this.date = date;
+        this.limitDate = limitDate;
+        this.paymentDate = paymentDate;
     }
 }

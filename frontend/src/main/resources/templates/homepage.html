@@ -58,7 +58,7 @@
     <button id="profile">Profile</button>
     <button id="outgoingPayments">Outgoing Payments</button>
     <button id="incomingPayments">Incoming Payments</button>
-    <button id="historicPayments">Payments Historic</button>
+    <button id="paymentsHistoric">Payments Historic</button>
 </div>
 <div class="container">
     Welcome to the Club Manager, <span id="memberName"></span>
@@ -83,8 +83,8 @@
     document.getElementById("incomingPayments").addEventListener("click", function() {
         window.location.href = "incomingPayments?member=" + encodeURIComponent(JSON.stringify(member));
     });
-    document.getElementById("historicPayments").addEventListener("click", function() {
-        window.location.href = "historicPayments?member=" + encodeURIComponent(JSON.stringify(member));
+    document.getElementById("paymentsHistoric").addEventListener("click", function() {
+        window.location.href = "paymentsHistoric?member=" + encodeURIComponent(JSON.stringify(member));
     });
 
 </script>

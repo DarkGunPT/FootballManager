@@ -22,11 +22,8 @@ public class PaymentsController {
     @PostMapping("/create")
     public Payments createPayment(@RequestBody Payments request){
         Payments payment;
-        if(request.date!=null){
-            payment = new Payments(request.paymentFrom, request.paymentTo, request.value, request.date);
-        }else{
-            payment = new Payments(request.paymentFrom, request.paymentTo, request.value, LocalDate.now());
-        }
+        payment = new Payments(request.paymentFrom, request.paymentTo, request.value, request.limitDate, request.paymentDate);
+
         return repository.save(payment);
     }
 
@@ -36,6 +33,7 @@ public class PaymentsController {
 
         if(existingPayment!=null) {
             existingPayment.setPaid(true);
+            existingPayment.setPaymentDate(LocalDate.now());
             return repository.save(existingPayment);
         } else {
             return null;

@@ -61,4 +61,28 @@ public class FrontendController {
         return "outgoingPayments";
     }
 
+    @GetMapping("incomingPayments")
+    public String incomingPayments(Model model, @RequestParam(name = "member", required = false) String memberJson) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            Member member = objectMapper.readValue(memberJson, Member.class);
+            model.addAttribute("member", member);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return "incomingPayments";
+    }
+
+    @GetMapping("paymentsHistoric")
+    public String paymentsHistoric(Model model, @RequestParam(name = "member", required = false) String memberJson) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            Member member = objectMapper.readValue(memberJson, Member.class);
+            model.addAttribute("member", member);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return "paymentsHistoric";
+    }
+
 }

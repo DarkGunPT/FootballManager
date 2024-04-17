@@ -49,19 +49,19 @@ public class MemberController {
     }
 
     public void createPaymentsYear(Member member) throws URISyntaxException, IOException, InterruptedException {
-        // Criar o cliente HTTP
         HttpClient client = HttpClient.newHttpClient();
         String requestBody;
         LocalDate now = LocalDate.now();
 
         for(int i = 1; i <= 12; i++){
-            if(member.getMembership() != Membership.VIP){
-                requestBody = String.format("{\"paymentFrom\": \"%s\", \"paymentTo\": \"%s\", \"value\": %.2f, \"date\": \"%s\"}", "CLUB", member.getId(), member.getBalance(), now);
-            }else{
-                requestBody = String.format("{\"paymentFrom\": \"%s\", \"paymentTo\": \"%s\", \"value\": %.2f, \"date\": \"%s\"}", member.getId(), "CLUB", member.getBalance(), now);
+            if (member.getMembership() != Membership.VIP) {
+                requestBody = String.format("{\"paymentFrom\": {\"id\": \"%s\", \"name\": \"%s\", \"email\": \"%s\"}, \"paymentTo\": {\"id\": \"%s\", \"name\": \"%s\", \"email\": \"%s\"}, \"value\": %.2f, \"limitDate\": \"%s\", \"paymentDate\": \"%s\"}",
+                        "CLUB", "Football Club", "clube@gmail.com", member.getId(), member.getName(), member.getEmail(), member.getBalance(), now, now);
+            } else {
+                requestBody = String.format("{\"paymentFrom\": {\"id\": \"%s\", \"name\": \"%s\", \"email\": \"%s\"}, \"paymentTo\": {\"id\": \"%s\", \"name\": \"%s\", \"email\": \"%s\"}, \"value\": %.2f, \"limitDate\": \"%s\", \"paymentDate\": \"%s\"}",
+                        member.getId(), member.getName(), member.getEmail(), "CLUB", "Football Club", "clube@gmail.com", member.getBalance(), now, now);
             }
 
-            // Construir a solicitação POST
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI("http://localhost:8080/payments/create"))
                     .header("Content-Type", "application/json")
