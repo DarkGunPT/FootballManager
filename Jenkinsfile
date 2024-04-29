@@ -20,7 +20,15 @@ pipeline {
                 }
             }
         }
-
+        stage('Install Maven') {
+                    steps {
+                        script {
+                            // Install Maven tool
+                            def mvnHome = tool 'Maven'
+                            env.PATH = "${mvnHome}/bin:${env.PATH}"
+                        }
+                    }
+                }
         stage('Pull And Build Backend') {
             steps {
                 script {
