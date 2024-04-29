@@ -8,7 +8,10 @@ pipeline {
         DOCKER_USERNAME = '' 
         DOCKER_PASSWORD = ''  
     }
-
+    tools {
+        // Specify the Maven installation defined in Jenkins
+        maven 'maven'
+    }
     stages {
         stage('Login to docker') {
             steps {
@@ -20,15 +23,6 @@ pipeline {
                 }
             }
         }
-        stage('Install Maven') {
-                    steps {
-                        script {
-                            // Install Maven tool
-                            def mvnHome = tool 'Maven'
-                            env.PATH = "${mvnHome}/bin:${env.PATH}"
-                        }
-                    }
-                }
         stage('Pull And Build Backend') {
             steps {
                 script {
