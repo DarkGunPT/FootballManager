@@ -5,17 +5,17 @@ pipeline {
         BACKEND_IMAGE = 'backend'
         FRONTEND_IMAGE = 'frontend'
         DOCKER_HUB_REPO = 'xicosimoes/teste'
-        DOCKERHUB_U = '' 
-        DOCKERHUB_P = ''  
+        DOCKER_USERNAME = '' 
+        DOCKER_PASSWORD = ''  
     }
 
     stages {
         stage('Login to docker') {
             steps {
                 script {
-                   withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKERHUB_P', usernameVariable: 'DOCKERHUB_U')]) {
+                   withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                    
-                    sh "docker login -u ${DOCKERHUB_P} -p ${DOCKERHUB_P} --password-stdin"
+                    echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
                 }
                 }
             }
