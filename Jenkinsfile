@@ -28,7 +28,6 @@ pipeline {
 
                         dir('backend') {
                             sh '''
-                            apt-get install -y maven
                             mvn -B -DskipTests clean package
                             docker build -t $BACKEND_IMAGE .
                             docker tag $BACKEND_IMAGE $DOCKER_HUB_REPO:$BACKEND_IMAGE
