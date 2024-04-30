@@ -82,19 +82,17 @@ pipeline {
             }
         }
     options {
-         script {
-                   withCredentials([usernamePassword(credentialsId: 'outlook-credentials', passwordVariable: 'OUTLOOK_PASSWORD', usernameVariable: 'OUTLOOK_USERNAME')]) {
-                        emailext {
-                            // SMTP server hostname
-                            smtpServer('smtp-mail.outlook.com')
-                            smtpPort(587)
-                            starttls(true)
-                            // Use double quotes for variable interpolation
-                            username("${OUTLOOK_USERNAME}")
-                            password("${OUTLOOK_PASSWORD}")
-                            from('sender@example.com')
-                        }
-                    }
+       withCredentials([usernamePassword(credentialsId: 'outlook-credentials', passwordVariable: 'OUTLOOK_PASSWORD', usernameVariable: 'OUTLOOK_USERNAME')]) {
+            emailext {
+                // SMTP server hostname
+                smtpServer('smtp-mail.outlook.com')
+                smtpPort(587)
+                starttls(true)
+                // Use double quotes for variable interpolation
+                username("${OUTLOOK_USERNAME}")
+                password("${OUTLOOK_PASSWORD}")
+                from('sender@example.com')
+            }
+        }
     }
-}
 }
