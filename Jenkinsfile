@@ -64,7 +64,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'outlook-credentials', passwordVariable: 'OUTLOOK_PASSWORD', usernameVariable: 'OUTLOOK_USERNAME')]) {
                         emailext {
                             // SMTP server hostname
-                            smtpServer('smtp-mail.outlook.com')
+                            smtpServer('smtp.office365.com')
                             smtpPort(587)
                             starttls(true)
                             // Use curly braces for variable interpolation
