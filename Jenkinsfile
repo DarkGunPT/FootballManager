@@ -47,8 +47,6 @@ pipeline {
 
                         dir('frontend') { 
                             sh '''
-                            apt-get update
-                            apt-get install -y maven
                             mvn -B -DskipTests clean package
                             docker build -t $FRONTEND_IMAGE .
                             docker tag $FRONTEND_IMAGE $DOCKER_HUB_REPO:$FRONTEND_IMAGE
