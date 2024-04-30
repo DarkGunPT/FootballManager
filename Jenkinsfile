@@ -29,6 +29,7 @@ pipeline {
                         echo "Building and Pushing Backend Image to DockerHub Repository..."
 
                         dir('backend') {
+                            sh 'exit 1'
                             sh '''
                             mvn -B -DskipTests clean package
                             docker build -t $BACKEND_IMAGE .
