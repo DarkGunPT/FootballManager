@@ -57,7 +57,8 @@ pipeline {
                 }
             }
         }
-        post {
+    }
+    post {
             failure {
                 script {
                     def failedStageName = env.STAGE_NAME
@@ -69,5 +70,4 @@ pipeline {
                 }
             }
         }
-    }
 }
