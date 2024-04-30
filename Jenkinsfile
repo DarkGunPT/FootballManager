@@ -56,5 +56,17 @@ pipeline {
                 }
             }
         }
+        post {
+            failure {
+                script {
+                    def failedStageName = env.STAGE_NAME
+                    emailext (
+                        subject: "Build Failed in Stage: ${failedStageName}",
+                        body: "Your build failed in stage: ${failedStageName}.",
+                        to: 'franciscoscc15@gmail.com'
+                    )
+                }
+            }
+        }
     }
 }
