@@ -68,5 +68,15 @@ pipeline {
                     )
                 }
             }
+            success {
+                script {
+                    def succededStageName = env.STAGE_NAME
+                    emailext (
+                        subject: "Build Succeeded in Stage: ${succededStageName}",
+                        body: "Your build succeeded in stage: ${succededStageName}.",
+                        to: 'a2019133920@isec.pt'
+                    )
+                }
+            }
         }
 }
