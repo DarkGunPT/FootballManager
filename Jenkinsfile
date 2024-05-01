@@ -90,7 +90,7 @@ pipeline {
                                 <body>
                                     <div class="container">
                                         <div class="alert alert-success" role="alert">
-                                            <strong>Build Failed!</strong> Your build has failed.
+                                            <strong>Build Failed!</strong> Your build has failed in ${CURRENT_STAGE}.
                                         </div>
                                     </div>
                                 </body>
