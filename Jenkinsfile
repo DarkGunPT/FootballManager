@@ -79,7 +79,7 @@ pipeline {
                                     border-radius: .25rem;
                                     margin-bottom: 20px;
                                 }
-                                .alert-danger {
+                                .alert-success {
                                     color: #721c24;
                                     background-color: #f8d7da;
                                     border-color: #f5c6cb;
