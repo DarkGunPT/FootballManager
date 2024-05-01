@@ -7,8 +7,8 @@ pipeline {
         DOCKER_HUB_REPO = 'xicosimoes/teste'
         DOCKER_USERNAME = '' 
         DOCKER_PASSWORD = ''  
-        OUTLOOK_USERNAME = ''
-        OUTLOOK_PASSWORD = ''
+        GMAIL_USERNAME = ''
+        GMAIL_PASSWORD = ''
     }
     tools {
         // Specify the Maven installation defined in Jenkins
@@ -61,15 +61,15 @@ pipeline {
         stage('Configure E-mail') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'outlook-credentials', passwordVariable: 'OUTLOOK_PASSWORD', usernameVariable: 'OUTLOOK_USERNAME')]) {
+                    withCredentials([usernamePassword(credentialsId: 'gmail-credentials', passwordVariable: 'GMAIL_PASSWORD', usernameVariable: 'GMAIL_USERNAME')]) {
                         emailext {
                             // SMTP server hostname
                             smtpServer('smtp.office365.com')
                             smtpPort(587)
                             starttls(true)
                             // Use curly braces for variable interpolation
-                            username("${OUTLOOK_USERNAME}")
-                            password("${OUTLOOK_PASSWORD}")
+                            username("${GMAIL_USERNAME}")
+                            password("${GMAIL_PASSWORD}")
                             from('sender@example.com')
                         }
                     }
