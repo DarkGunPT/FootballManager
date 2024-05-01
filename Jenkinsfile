@@ -63,13 +63,12 @@ pipeline {
     post {
             failure {
                 script {
-                    def failedStageName = ${CURRENT_STAGE}
                     emailext (
-                        subject: "Build Failed in Stage: ${failedStageName}",
+                        subject: "Build Failed in Stage: ${CURRENT_STAGE}",
                          body: """
                                 <div class="container">
                                     <div class="alert alert-success" role = "alert">
-                                        <b> Your build failed in stage: ${failed}.</b>
+                                        <b> Your build failed in stage: ${CURRENT_STAGE}.</b>
                                     </div > 
                                 </div>
                               """,
@@ -80,13 +79,12 @@ pipeline {
             }
             success {
                 script {
-                    def succededStageName = ${CURRENT_STAGE}
                     emailext (
-                        subject: "Build Succeeded in Stage: ${succededStageName}",
+                        subject: "Build Succeeded in Stage: ${CURRENT_STAGE}",
                         body: """
                                 <div class="container">
                                     <div class="alert alert-success" role = "alert">
-                                        <b> Your build succeeded in stage: ${succededStageName}.</b>
+                                        <b> Your build succeeded in stage: ${CURRENT_STAGE}.</b>
                                     </div > 
                                 </div>
                               """,
