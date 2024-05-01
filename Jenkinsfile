@@ -64,6 +64,7 @@ pipeline {
             failure {
                 script {
                     emailext (
+                        attachLog:true,
                         subject: "Build Failed in Stage: ${CURRENT_STAGE}",
                          body: """
                                 <div class="container">
@@ -80,6 +81,7 @@ pipeline {
             success {
                 script {
                     emailext (
+                        attachLog:true,
                         subject: "Build Succeeded in Stage: ${CURRENT_STAGE}",
                         body: """
                                 <div class="container">
