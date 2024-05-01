@@ -75,7 +75,7 @@ pipeline {
                     def succededStageName = env.STAGE_NAME
                     emailext (
                         subject: "Build Succeeded in Stage: ${succededStageName}",
-                        body: "Your build succeeded in stage: ${succededStageName}.",
+                        body: "<b>Your build succeeded in stage: ${succededStageName}.</b>",
                         to: 'franciscoscc15@gmail.com'
                     )
                 }
