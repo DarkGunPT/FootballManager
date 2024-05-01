@@ -93,7 +93,22 @@ pipeline {
                         body: """
                                 <html>
                                 <head>
-                                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+                                    <style>
+                                .container {
+                                    margin: 20px;
+                                }
+                                .alert {
+                                    padding: 15px;
+                                    border: 1px solid transparent;
+                                    border-radius: .25rem;
+                                    margin-bottom: 20px;
+                                }
+                                .alert-success {
+                                    color: #155724;
+                                    background-color: #d4edda;
+                                    border-color: #c3e6cb;
+                                }
+                            </style>
                                 </head>
                                 <body>
                                     <div class="container">
