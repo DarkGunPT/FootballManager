@@ -78,7 +78,7 @@
                 .then(data => {
                     if (data.exists) {
                         alert("Login successfull!");
-                        window.location.href = "homepage?member=" + encodeURIComponent(JSON.stringify(data.member));
+                        window.location.href = "homepage?memberID=" + encodeURIComponent(data.member.id);
                     } else {
                         alert("Wrong credentials. Please, try again.");
                     }

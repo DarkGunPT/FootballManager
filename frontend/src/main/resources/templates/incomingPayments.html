@@ -106,10 +106,26 @@
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get('memberID');
 
-    const memberData = urlParams.get('member');
+    let member;
+    function getMemberSync(memberId) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", `http://localhost:8080/members/get/${memberId}`, false);
 
-    const member = JSON.parse(decodeURIComponent(memberData));
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                member = JSON.parse(xhr.responseText);
+            } else {
+                console.error("Failed to fetch member. Status:", xhr.status);
+            }
+        };
+        xhr.send();
+    }
+
+    getMemberSync(memberId);
 
     function fetchOutgoingPayments(memberId) {
         fetch("http://localhost:8080/payments/to/" + memberId, {
@@ -145,16 +161,16 @@
     fetchOutgoingPayments(member.id);
 
     document.getElementById("homepage").addEventListener("click", function() {
-        window.location.href = "homepage?member=" + encodeURIComponent(JSON.stringify(member));
+        window.location.href = "homepage?memberID=" + encodeURIComponent(memberId);
     });
     document.getElementById("profile").addEventListener("click", function() {
-        window.location.href = "profile?member=" + encodeURIComponent(JSON.stringify(member));
+        window.location.href = "profile?memberID=" + encodeURIComponent(memberId);
     });
     document.getElementById("outgoingPayments").addEventListener("click", function() {
-        window.location.href = "outgoingPayments?member=" + encodeURIComponent(JSON.stringify(member));
+        window.location.href = "outgoingPayments?memberID=" + encodeURIComponent(memberId);
     });
     document.getElementById("paymentsHistoric").addEventListener("click", function() {
-        window.location.href = "paymentsHistoric?member=" + encodeURIComponent(JSON.stringify(member));
+        window.location.href = "paymentsHistoric?memberID=" + encodeURIComponent(memberId);
     });
 
 </script>

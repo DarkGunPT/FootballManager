@@ -98,26 +98,23 @@ public class MemberController {
         return result;
     }
 
-    @PatchMapping("/update/{id}")
-    public Member update(@PathVariable String id, @RequestBody Member request, @RequestParam Boolean gotBalance){
+    @GetMapping("/get/{id}")
+    public Member  getMember(@PathVariable String id) {
+        return repository.findByIdentifier(id);
+    }
+
+    @PutMapping("/update/{id}")
+    public Member update(@PathVariable String id, @RequestBody Member request){
+        System.out.println("member: " + request);
         Member existingMember = repository.findByIdentifier(id);
 
         if(existingMember!=null){
-            if (request.getName() != null) {
-                existingMember.setName(request.getName());
-            }
-            if (request.getMembership() != null) {
-                existingMember.setMembership(request.getMembership());
-            }
-            if (request.getPassword() != null) {
-                existingMember.setPassword(request.getPassword());
-            }
-            if (request.getEmail() != null) {
-                existingMember.setEmail(request.getEmail());
-            }
-            if (gotBalance) {
-                existingMember.setBalance(request.getBalance());
-            }
+            existingMember.setName(request.getName());
+            existingMember.setMembership(request.getMembership());
+            existingMember.setPassword(request.getPassword());
+            existingMember.setEmail(request.getEmail());
+            existingMember.setBalance(request.getBalance());
+
             return repository.save(existingMember);
         }else{
             return null;

@@ -26,60 +26,50 @@ public class FrontendController {
     }
 
     @GetMapping("homepage")
-    public String homepage(Model model, @RequestParam(name = "member", required = false) String memberJson) {
-            ObjectMapper objectMapper = new ObjectMapper();
+    public String homepage(Model model, @RequestParam(name = "memberID", required = false) String memberID) {
             try {
-                Member member = objectMapper.readValue(memberJson, Member.class);
-                model.addAttribute("member", member);
-            } catch (JsonProcessingException e) {
+                model.addAttribute("memberID", memberID);
+            } catch (Exception  e) {
                 e.printStackTrace();
             }
             return "homepage";
     }
 
     @GetMapping("profile")
-    public String profile(Model model, @RequestParam(name = "member", required = false) String memberJson) {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public String profile(Model model, @RequestParam(name = "memberID", required = false) String memberID) {
         try {
-            Member member = objectMapper.readValue(memberJson, Member.class);
-            model.addAttribute("member", member);
-        } catch (JsonProcessingException e) {
+            model.addAttribute("memberID", memberID);
+        } catch (Exception  e) {
             e.printStackTrace();
         }
         return "profile";
     }
 
     @GetMapping("outgoingPayments")
-    public String outgoingPayments(Model model, @RequestParam(name = "member", required = false) String memberJson) {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public String outgoingPayments(Model model, @RequestParam(name = "memberID", required = false) String memberID) {
         try {
-            Member member = objectMapper.readValue(memberJson, Member.class);
-            model.addAttribute("member", member);
-        } catch (JsonProcessingException e) {
+            model.addAttribute("memberID", memberID);
+        } catch (Exception  e) {
             e.printStackTrace();
         }
         return "outgoingPayments";
     }
 
     @GetMapping("incomingPayments")
-    public String incomingPayments(Model model, @RequestParam(name = "member", required = false) String memberJson) {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public String incomingPayments(Model model, @RequestParam(name = "memberID", required = false) String memberID) {
         try {
-            Member member = objectMapper.readValue(memberJson, Member.class);
-            model.addAttribute("member", member);
-        } catch (JsonProcessingException e) {
+            model.addAttribute("memberID", memberID);
+        } catch (Exception  e) {
             e.printStackTrace();
         }
         return "incomingPayments";
     }
 
     @GetMapping("paymentsHistoric")
-    public String paymentsHistoric(Model model, @RequestParam(name = "member", required = false) String memberJson) {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public String paymentsHistoric(Model model, @RequestParam(name = "memberID", required = false) String memberID) {
         try {
-            Member member = objectMapper.readValue(memberJson, Member.class);
-            model.addAttribute("member", member);
-        } catch (JsonProcessingException e) {
+            model.addAttribute("memberID", memberID);
+        } catch (Exception  e) {
             e.printStackTrace();
         }
         return "paymentsHistoric";

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <title>Profile</title>
     <style>
         body {
@@ -49,6 +51,7 @@
             background-color: #0056b3;
         }
         .profile-container {
+            position: relative;
             max-width: 400px;
             margin: 50px auto;
             padding: 20px;
@@ -65,6 +68,36 @@
         }
         .profile-data {
             margin-bottom: 10px;
+        }
+        #editButton {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color:  #818c9b;
+        }
+        #saveButton {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #31752f;
+        }
+        #cancelButton {
+            position: absolute;
+            bottom: 10px;
+            right: 40px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #932727;
         }
     </style>
 </head>
@@ -98,37 +131,140 @@
         <span class="profile-label">Admission Date:</span>
         <span id="profile-admission-date"></span>
     </div>
+
+    <button id="editButton">
+        <i class="fas fa-pencil-alt"></i>
+    </button>
+
+    <button id="saveButton" style="display: none;">
+        <i class="fas fa-check"></i>
+    </button>
+
+    <button id="cancelButton" style="display: none;">
+        <i class="fas fa-times"></i>
+    </button>
+
+
 </div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get('memberID');
 
-    const memberData = urlParams.get('member');
+    let member;
+    function getMemberSync(memberId) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", `http://localhost:8080/members/get/${memberId}`, false);
 
-    const member = JSON.parse(decodeURIComponent(memberData));
-    if(member.membership==="VIP"){
-        document.getElementById("balance-label").textContent = "Subscription:"
-    }else{
-        document.getElementById("balance-label").textContent = "Salary:"
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                member = JSON.parse(xhr.responseText);
+            } else {
+                console.error("Failed to fetch member. Status:", xhr.status);
+            }
+        };
+        xhr.send();
     }
+
+    getMemberSync(memberId);
+
     document.getElementById("profile-name").textContent = member.name;
     document.getElementById("profile-membership").textContent = member.membership;
     document.getElementById("profile-email").textContent = member.email;
     document.getElementById("profile-balance").textContent = member.balance;
     document.getElementById("profile-admission-date").textContent = member.admissionDate;
 
-    document.getElementById("homepage").addEventListener("click", function() {
-        window.location.href = "homepage?member=" + encodeURIComponent(JSON.stringify(member));
+    document.getElementById("balance-label").textContent = member.membership === "VIP" ? "Subscription:" : "Salary:";
+
+    document.getElementById("editButton").addEventListener("click", function() {
+        document.getElementById("editButton").style.display = "none";
+        document.getElementById("saveButton").style.display = "block";
+        document.getElementById("cancelButton").style.display = "block";
+
+        document.getElementById("profile-name").innerHTML = `<input type="text" value="${member.name}" id="edit-name">`;
+        document.getElementById("profile-membership").innerHTML = `<input type="text" value="${member.membership}" id="edit-membership">`;
+        document.getElementById("profile-email").innerHTML = `<input type="email" value="${member.email}" id="edit-email">`;
+        document.getElementById("profile-balance").innerHTML = `<input type="number" value="${member.balance}" id="edit-balance">`;
+        document.getElementById("profile-admission-date").innerHTML = `<input type="date" value="${member.admissionDate}" id="edit-admission-date">`;
     });
 
+    document.getElementById("saveButton").addEventListener("click", function() {
+
+        const updatedName = document.getElementById("edit-name").value;
+        const updatedMembership = document.getElementById("edit-membership").value;
+        const updatedEmail = document.getElementById("edit-email").value;
+        const updatedBalance = parseFloat(document.getElementById("edit-balance").value);
+        const updatedAdmissionDate = document.getElementById("edit-admission-date").value;
+
+        const updatedMember = {
+            ...member,
+            name: updatedName,
+            membership: updatedMembership,
+            email: updatedEmail,
+            balance: updatedBalance,
+            admissionDate: updatedAdmissionDate
+        };
+
+        fetch("http://localhost:8080/members/update/" + member.id, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(updatedMember)
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("Failed to update member.");
+                }
+            })
+            .then(data => {
+                alert("Member updated successfully!");
+
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error("Error updating member:", error);
+                alert("Failed to update member. Please try again later.");
+            });
+
+        document.getElementById("editButton").style.display = "block";
+        document.getElementById("saveButton").style.display = "none";
+        document.getElementById("cancelButton").style.display = "none";
+
+        document.getElementById("profile-name").innerHTML = `<span id="profile-name">${member.name}</span>`;
+        document.getElementById("profile-membership").innerHTML = `<span id="profile-membership">${member.membership}</span>`;
+        document.getElementById("profile-email").innerHTML = `<span id="profile-email">${member.email}</span>`;
+        document.getElementById("profile-balance").innerHTML = `<span id="profile-balance">${member.balance}</span>`;
+        document.getElementById("profile-admission-date").innerHTML = `<span id="profile-admission-date">${member.admissionDate}</span>`;
+    });
+
+    document.getElementById("cancelButton").addEventListener("click", function() {
+        document.getElementById("editButton").style.display = "block";
+        document.getElementById("saveButton").style.display = "none";
+        document.getElementById("cancelButton").style.display = "none";
+
+        document.getElementById("profile-name").innerHTML = `<span id="profile-name">${member.name}</span>`;
+        document.getElementById("profile-membership").innerHTML = `<span id="profile-membership">${member.membership}</span>`;
+        document.getElementById("profile-email").innerHTML = `<span id="profile-email">${member.email}</span>`;
+        document.getElementById("profile-balance").innerHTML = `<span id="profile-balance">${member.balance}</span>`;
+        document.getElementById("profile-admission-date").innerHTML = `<span id="profile-admission-date">${member.admissionDate}</span>`;
+    });
+
+    document.getElementById("homepage").addEventListener("click", function() {
+        window.location.href = "homepage?memberID=" + encodeURIComponent(memberId);
+    });
     document.getElementById("outgoingPayments").addEventListener("click", function() {
-        window.location.href = "outgoingPayments?member=" + encodeURIComponent(JSON.stringify(member));
+        window.location.href = "outgoingPayments?memberID=" + encodeURIComponent(memberId);
     });
     document.getElementById("incomingPayments").addEventListener("click", function() {
-        window.location.href = "incomingPayments?member=" + encodeURIComponent(JSON.stringify(member));
+        window.location.href = "incomingPayments?memberID=" + encodeURIComponent(memberId);
     });
     document.getElementById("paymentsHistoric").addEventListener("click", function() {
-        window.location.href = "paymentsHistoric?member=" + encodeURIComponent(JSON.stringify(member));
+        window.location.href = "paymentsHistoric?memberID=" + encodeURIComponent(memberId);
     });
 
 </script>
