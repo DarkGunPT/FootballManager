@@ -1,14 +1,14 @@
 pipeline {
     agent any
-
     environment {
         BACKEND_IMAGE = 'backend'
         FRONTEND_IMAGE = 'frontend'
         DOCKER_HUB_REPO = 'xicosimoes/teste'
-        DOCKER_USERNAME = '' 
-        DOCKER_PASSWORD = ''  
+        DOCKER_USERNAME = ''
+        DOCKER_PASSWORD = ''
         GMAIL_USERNAME = ''
         GMAIL_PASSWORD = ''
+        CURRENT_STAGE = ''
     }
     tools {
         // Specify the Maven installation defined in Jenkins
@@ -18,17 +18,19 @@ pipeline {
         stage('Login to docker') {
             steps {
                 script {
-                   withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                   
+                    CURRENT_STAGE = 'Login to docker'
+                    echo "Logging to docker'
+                   withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {   
                     sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
                 }
                 }
             }
         }
-        stage('Pull And Build Backend') {
+        stage('Backend Image Build and Push') {
             steps {
                 script {
-                        echo "Building and Pushing Backend Image to DockerHub Repository..."
+                        CURRENT_STAGE = 'Backend Image Build and Push'
+                        echo "Getting the Backend dockerfile from Git, Building and Pushing it..."
 
                         dir('backend') {
                             sh '''
@@ -42,11 +44,11 @@ pipeline {
             }
         }
 
-        stage('Pull And Build Frontend') {
+        stage('Frontend Image Build and Push') {
             steps {
                 script {
-                        echo "Building and Pushing Frontend Image to DockerHub Repository..."
-
+                        CURRENT_STAGE = 'Frontend Image Build and Push'
+                        echo "Getting the Frontend dockerfile from Git, Building and Pushing it..."
                         dir('frontend') { 
                             sh '''
                             mvn -B -DskipTests clean package
@@ -65,7 +67,14 @@ pipeline {
                     def failedStageName = currentBuild.currentExecution.displayName
                     emailext (
                         subject: "Build Failed in Stage: ${failedStageName}",
-                        body: "Your build failed in stage: ${failedStageName}.",
+                         body: """
+                                <div class="container">
+                                    <div class="alert alert-success" role = "alert">
+                                        <b> Your build failed in stage: ${failed}.</b>
+                                    </div > 
+                                </div>
+                              """,
+                        mimeType:"text/html",
                         to: 'franciscoscc15@gmail.com'
                     )
                 }
@@ -75,7 +84,14 @@ pipeline {
                     def succededStageName = currentBuild.currentExecution.displayName
                     emailext (
                         subject: "Build Succeeded in Stage: ${succededStageName}",
-                        body: "<b>Your build succeeded in stage: ${succededStageName}.</b>",
+                        body: """
+                                <div class="container">
+                                    <div class="alert alert-success" role = "alert">
+                                        <b> Your build succeeded in stage: ${succededStageName}.</b>
+                                    </div > 
+                                </div>
+                              """,
+                        mimeType:"text/html",
                         to: 'franciscoscc15@gmail.com'
                     )
                 }
