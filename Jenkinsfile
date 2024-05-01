@@ -84,12 +84,19 @@ pipeline {
                         attachLog:true,
                         subject: "Build Succeeded in Stage: ${CURRENT_STAGE}",
                         body: """
-                                <div class="container">
-                                    <div class="alert alert-success" role = "alert">
-                                        <b> Your build succeeded in stage: ${CURRENT_STAGE}.</b>
-                                    </div > 
-                                </div>
-                              """,
+                                <html>
+                                <head>
+                                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+                                </head>
+                                <body>
+                                    <div class="container">
+                                        <div class="alert alert-success" role="alert">
+                                            <strong>Build Succeeded!</strong> Your build has succeeded.
+                                        </div>
+                                    </div>
+                                </body>
+                                </html>
+                            """,
                         mimeType:"text/html",
                         to: 'franciscoscc15@gmail.com'
                     )
