@@ -58,24 +58,6 @@ pipeline {
                 }
             }
         }
-        stage('Configure E-mail') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'gmail-credentials', passwordVariable: 'GMAIL_PASSWORD', usernameVariable: 'GMAIL_USERNAME')]) {
-                        emailext {
-                            // SMTP server hostname
-                            smtpServer('smtp.office365.com')
-                            smtpPort(587)
-                            starttls(true)
-                            // Use curly braces for variable interpolation
-                            username("${GMAIL_USERNAME}")
-                            password("${GMAIL_PASSWORD}")
-                            from('sender@example.com')
-                        }
-                    }
-                }
-            }
-        }
     }
     post {
             failure {
@@ -84,7 +66,7 @@ pipeline {
                     emailext (
                         subject: "Build Failed in Stage: ${failedStageName}",
                         body: "Your build failed in stage: ${failedStageName}.",
-                        to: 'a2019133920@isec.pt'
+                        to: 'franciscoscc15@gmail.com'
                     )
                 }
             }
@@ -94,7 +76,7 @@ pipeline {
                     emailext (
                         subject: "Build Succeeded in Stage: ${succededStageName}",
                         body: "Your build succeeded in stage: ${succededStageName}.",
-                        to: 'a2019133920@isec.pt'
+                        to: 'franciscoscc15@gmail.com'
                     )
                 }
             }
