@@ -62,7 +62,7 @@ pipeline {
     post {
             failure {
                 script {
-                    def failedStageName = env.STAGE_NAME
+                    def failedStageName = currentBuild.currentExecution.displayName
                     emailext (
                         subject: "Build Failed in Stage: ${failedStageName}",
                         body: "Your build failed in stage: ${failedStageName}.",
@@ -72,7 +72,7 @@ pipeline {
             }
             success {
                 script {
-                    def succededStageName = env.STAGE_NAME
+                    def succededStageName = currentBuild.currentExecution.displayName
                     emailext (
                         subject: "Build Succeeded in Stage: ${succededStageName}",
                         body: "<b>Your build succeeded in stage: ${succededStageName}.</b>",
