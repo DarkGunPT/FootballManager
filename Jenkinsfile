@@ -1,110 +1,144 @@
 pipeline {
     agent any
-
     environment {
-        MONGO_IMAGE = 'mongo'
-        MONGO_VOLUME = 'mongo-data'
         BACKEND_IMAGE = 'backend'
         FRONTEND_IMAGE = 'frontend'
-        BACKEND_DOCKERFILE = 'dockerfile'
-        MONGO_CONTAINER_NAME = 'mongodb'
-        BACKEND_CONTAINER_NAME = 'backend'
-        FRONTEND_CONTAINER_NAME = 'frontend'  // Corrected the container name
-        NETWORK = 'footballNetwork'
         DOCKER_HUB_REPO = 'xicosimoes/teste'
-        DOCKERHUB_USERNAME = ''  // Fill in your Docker Hub username
-        DOCKERHUB_PASSWORD = ''  // Fill in your Docker Hub password
+        DOCKER_USERNAME = ''
+        DOCKER_PASSWORD = ''
+        GMAIL_USERNAME = ''
+        GMAIL_PASSWORD = ''
+        CURRENT_STAGE = ''
     }
-
-    stages {
-        stage('Create Volume') {
-            steps {
-                script {
-                    // Check if the volume already exists
-                    def volumeCheck = sh(script: "docker volume ls -qf name=${env.MONGO_VOLUME}", returnStdout: true).trim()
-                    def volumeExists = volumeCheck != ""
-                    if (!volumeExists) {
-                        sh "docker volume create ${env.MONGO_VOLUME}"
-                    } else {
-                        echo "Volume ${env.MONGO_VOLUME} already exists."
-                    }
-
-                    // Check if the network already exists
-                    def networkCheck = sh(script: "docker network ls -qf name=${env.NETWORK}", returnStdout: true).trim()
-                    def networkExists = networkCheck != ""
-                    if (!networkExists) {
-                        sh "docker network create ${env.NETWORK}"
-                    } else {
-                        echo "Network ${env.NETWORK} already exists."
-                    }
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
-                    // Login to Docker
-                    sh "echo ${env.DOCKERHUB_PASSWORD} | docker login -u ${env.DOCKERHUB_USERNAME} --password-stdin"
+    tools {
+        maven 'maven'
+    }
+     stages {
+    stage('Login to docker') {
+        steps {
+            script {
+                CURRENT_STAGE = 'Login to docker'
+                echo 'Logging to docker'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {   
+                    sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
                 }
                 }
             }
         }
-
-        stage('Pull And Run MongoDB') {
+        stage('Backend Image Build and Push') {
             steps {
                 script {
-                    sh "docker run -p 27017:27017 -d --name ${env.MONGO_CONTAINER_NAME} --network ${env.NETWORK} -v ${env.MONGO_VOLUME}:/data/db ${env.MONGO_IMAGE}"
-                }
-            }
-        }
-
-        stage('Pull And Build Backend') {
-            steps {
-                script {
-                    def imageExists = sh(script: "docker pull ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}", returnStatus: true) == 0
-
-                    if (imageExists) {
-                        echo "Image ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE} exists in the registry. Pulling image..."
-                        sh "docker pull ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE}"
-                    } else {
-                        echo "Image ${env.DOCKER_HUB_REPO}:${env.BACKEND_IMAGE} does not exist in the registry. Building locally..."
+                        CURRENT_STAGE = 'Backend Image Build and Push'
+                        echo "Getting the Backend dockerfile from Git, Building and Pushing it..."
 
                         dir('backend') {
                             sh '''
-                            apt-get update
-                            apt-get install -y maven
                             mvn -B -DskipTests clean package
                             docker build -t $BACKEND_IMAGE .
                             docker tag $BACKEND_IMAGE $DOCKER_HUB_REPO:$BACKEND_IMAGE
                             docker push $DOCKER_HUB_REPO:$BACKEND_IMAGE
                             '''
                         }
-                    }
-                    sh "docker run -p 8080:8080 -d --name $BACKEND_CONTAINER_NAME --network $NETWORK $DOCKER_HUB_REPO:$BACKEND_IMAGE"
                 }
             }
         }
 
-        stage('Pull And Build Frontend') {
+        stage('Frontend Image Build and Push') {
             steps {
                 script {
-                    def imageExists = sh(script: "docker pull $DOCKER_HUB_REPO:$FRONTEND_IMAGE", returnStatus: true) == 0
-
-                    if (imageExists) {
-                        echo "Image ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE} exists in the registry. Pulling image..."
-                        sh "docker pull $DOCKER_HUB_REPO:$FRONTEND_IMAGE"
-                    } else {
-                        echo "Image ${env.DOCKER_HUB_REPO}:${env.FRONTEND_IMAGE} does not exist in the registry. Building locally..."
-
-                        dir('frontend') {  // Corrected the directory name to 'frontend'
+                        CURRENT_STAGE = 'Frontend Image Build and Push'
+                        echo "Getting the Frontend dockerfile from Git, Building and Pushing it..."
+                        dir('frontend') { 
                             sh '''
-                            apt-get update
-                            apt-get install -y maven
                             mvn -B -DskipTests clean package
                             docker build -t $FRONTEND_IMAGE .
                             docker tag $FRONTEND_IMAGE $DOCKER_HUB_REPO:$FRONTEND_IMAGE
                             docker push $DOCKER_HUB_REPO:$FRONTEND_IMAGE
                             '''
                         }
-                    }
-                    sh "docker run -p 8081:8081 -d --name $FRONTEND_CONTAINER_NAME --network $NETWORK $DOCKER_HUB_REPO:$FRONTEND_IMAGE"
                 }
             }
         }
     }
+    post {
+            failure {
+                script {
+                    emailext (
+                        attachLog:true,
+                        subject: "Build Failed in Stage: ${CURRENT_STAGE}",
+                         body: """
+                                <html>
+                                <head>
+                                    <style>
+                                .container {
+                                    margin: 20px;
+                                }
+                                .alert {
+                                    padding: 15px;
+                                    border: 1px solid transparent;
+                                    border-radius: .25rem;
+                                    margin-bottom: 20px;
+                                }
+                                .alert-success {
+                                    color: #721c24;
+                                    background-color: #f8d7da;
+                                    border-color: #f5c6cb;
+                                }
+                            </style>    
+                                    
+                                </head>
+                                <body>
+                                    <div class="container">
+                                        <div class="alert alert-success" role="alert">
+                                            <strong>Build Failed!</strong> Your build has failed in ${CURRENT_STAGE}.
+                                        </div>
+                                    </div>
+                                </body>
+                                </html>
+                            """,
+                        mimeType:"text/html",
+                        to: 'franciscoscc15@gmail.com'
+                    )
+                }
+            }
+            success {
+                script {
+                    emailext (
+                        attachLog:true,
+                        subject: "Congratualions! Your Build went through all stages without errors!",
+                        body: """
+                                <html>
+                                <head>
+                                    <style>
+                                .container {
+                                    margin: 20px;
+                                }
+                                .alert {
+                                    padding: 15px;
+                                    border: 1px solid transparent;
+                                    border-radius: .25rem;
+                                    margin-bottom: 20px;
+                                }
+                                .alert-success {
+                                    color: #155724;
+                                    background-color: #d4edda;
+                                    border-color: #c3e6cb;
+                                }
+                            </style>
+                                </head>
+                                <body>
+                                    <div class="container">
+                                        <div class="alert alert-success" role="alert">
+                                            <strong>Build Succeeded!</strong> Your build has succeeded.
+                                        </div>
+                                    </div>
+                                </body>
+                                </html>
+                            """,
+                        mimeType:"text/html",
+                        to: 'franciscoscc15@gmail.com'
+                    )
+                }
+            }
+        }
 }
