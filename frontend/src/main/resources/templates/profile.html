@@ -79,6 +79,9 @@
             font-size: 20px;
             color:  #818c9b;
         }
+        #editButton:hover {
+            color: #727a86;
+        }
         #saveButton {
             position: absolute;
             bottom: 10px;
@@ -88,6 +91,9 @@
             cursor: pointer;
             font-size: 20px;
             color: #31752f;
+        }
+        #saveButton:hover {
+            color: #2d622c;
         }
         #cancelButton {
             position: absolute;
@@ -99,6 +105,9 @@
             font-size: 20px;
             color: #932727;
         }
+        #cancelButton:hover {
+            color: #7e2727;
+        }
     </style>
 </head>
 <body>
@@ -107,6 +116,8 @@
     <button id="outgoingPayments">Outgoing Payments</button>
     <button id="incomingPayments">Incoming Payments</button>
     <button id="paymentsHistoric">Payments Historic</button>
+    <button id="manageUsers" style="display: none;">Manage Users</button>
+    <button id="managePayments" style="display: none;">Manage Payments</button>
 </div>
 
 <div class="profile-container">
@@ -122,6 +133,10 @@
     <div class="profile-data">
         <span class="profile-label">Email:</span>
         <span id="profile-email"></span>
+    </div>
+    <div class="profile-data">
+        <span class="profile-label">Password:</span>
+        <span id="profile-password"></span>
     </div>
     <div class="profile-data">
         <span class="profile-label" id="balance-label"></span>
@@ -167,12 +182,34 @@
         };
         xhr.send();
     }
-
     getMemberSync(memberId);
+
+    function updateProfileFields(member) {
+        const manageUsersButton = document.getElementById("manageUsers");
+        const managePaymentsButton = document.getElementById("managePayments");
+        const outgoingPaymentsButton = document.getElementById("outgoingPayments");
+        const incomingPaymentsButton = document.getElementById("incomingPayments");
+        const paymentsHistoricButton = document.getElementById("paymentsHistoric");
+
+        if (manageUsersButton && managePaymentsButton && outgoingPaymentsButton && incomingPaymentsButton && paymentsHistoricButton) {
+            if (member.membership === "ADMIN") {
+                manageUsersButton.style.display = "block";
+                managePaymentsButton.style.display = "block";
+                outgoingPaymentsButton.style.display = "none";
+                incomingPaymentsButton.style.display = "none";
+                paymentsHistoricButton.style.display = "none";
+
+            }
+        } else {
+            console.error("One or more elements not found in the DOM.");
+        }
+    }
+    updateProfileFields(member);
 
     document.getElementById("profile-name").textContent = member.name;
     document.getElementById("profile-membership").textContent = member.membership;
     document.getElementById("profile-email").textContent = member.email;
+    document.getElementById("profile-password").textContent = member.password;
     document.getElementById("profile-balance").textContent = member.balance;
     document.getElementById("profile-admission-date").textContent = member.admissionDate;
 
@@ -184,10 +221,17 @@
         document.getElementById("cancelButton").style.display = "block";
 
         document.getElementById("profile-name").innerHTML = `<input type="text" value="${member.name}" id="edit-name">`;
-        document.getElementById("profile-membership").innerHTML = `<input type="text" value="${member.membership}" id="edit-membership">`;
+        document.getElementById("profile-membership").innerHTML = `<select id="edit-membership" name="membership" disabled>
+            <option value="ADMIN">ADMIN</option>
+            <option value="PLAYER">PLAYER</option>
+            <option value="COACH">COACH</option>
+            <option value="BOARD">BOARD</option>
+            <option value="PRESIDENT">PRESIDENT</option>
+        </select>`
         document.getElementById("profile-email").innerHTML = `<input type="email" value="${member.email}" id="edit-email">`;
-        document.getElementById("profile-balance").innerHTML = `<input type="number" value="${member.balance}" id="edit-balance">`;
-        document.getElementById("profile-admission-date").innerHTML = `<input type="date" value="${member.admissionDate}" id="edit-admission-date">`;
+        document.getElementById("profile-password").innerHTML = `<input type="password" value="${member.password}" id="edit-password">`;
+        document.getElementById("profile-balance").innerHTML = `<input type="number" value="${member.balance}" id="edit-balance" disabled>`;
+        document.getElementById("profile-admission-date").innerHTML = `<input type="date" value="${member.admissionDate}" id="edit-admission-date" disabled>`;
     });
 
     document.getElementById("saveButton").addEventListener("click", function() {
@@ -238,6 +282,7 @@
         document.getElementById("profile-name").innerHTML = `<span id="profile-name">${member.name}</span>`;
         document.getElementById("profile-membership").innerHTML = `<span id="profile-membership">${member.membership}</span>`;
         document.getElementById("profile-email").innerHTML = `<span id="profile-email">${member.email}</span>`;
+        document.getElementById("profile-password").innerHTML = `<span id="profile-password">${member.password}</span>`;
         document.getElementById("profile-balance").innerHTML = `<span id="profile-balance">${member.balance}</span>`;
         document.getElementById("profile-admission-date").innerHTML = `<span id="profile-admission-date">${member.admissionDate}</span>`;
     });
@@ -250,6 +295,7 @@
         document.getElementById("profile-name").innerHTML = `<span id="profile-name">${member.name}</span>`;
         document.getElementById("profile-membership").innerHTML = `<span id="profile-membership">${member.membership}</span>`;
         document.getElementById("profile-email").innerHTML = `<span id="profile-email">${member.email}</span>`;
+        document.getElementById("profile-password").innerHTML = `<span id="profile-password">${member.password}</span>`;
         document.getElementById("profile-balance").innerHTML = `<span id="profile-balance">${member.balance}</span>`;
         document.getElementById("profile-admission-date").innerHTML = `<span id="profile-admission-date">${member.admissionDate}</span>`;
     });
@@ -265,6 +311,12 @@
     });
     document.getElementById("paymentsHistoric").addEventListener("click", function() {
         window.location.href = "paymentsHistoric?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("manageUsers").addEventListener("click", function() {
+        window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("managePayments").addEventListener("click", function() {
+        window.location.href = "managePayments?memberID=" + encodeURIComponent(memberId);
     });
 
 </script>

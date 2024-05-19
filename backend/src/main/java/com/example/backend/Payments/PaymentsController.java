@@ -49,6 +49,11 @@ public class PaymentsController {
             return null;
         }
     }
+    @DeleteMapping("/delete/unpaid/{memberId}")
+    public List<Payments> deleteUnpaidPayments(@PathVariable String memberId){
+        System.out.println("memberId: " + memberId);
+        return repository.findByMemberIdAndStatus(memberId, false);
+    }
 
     @GetMapping("/{memberId}")
     public List<Payments> memberPayments(@PathVariable String memberId){

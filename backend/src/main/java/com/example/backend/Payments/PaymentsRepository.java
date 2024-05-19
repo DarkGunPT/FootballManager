@@ -13,6 +13,8 @@ import java.util.List;
 public interface PaymentsRepository extends MongoRepository<Payments, Integer> {
     @Query("{'$or':[{'paymentFrom.id' : ?0}, {'paymentTo.id': ?0}]}")
     List<Payments> findByMemberId(String id);
+    @DeleteQuery("{'$or': [{'paymentFrom.id' : ?0}, {'paymentTo.id': ?0}], 'paid': ?1}")
+    List<Payments> findByMemberIdAndStatus(String id, boolean paid);
     @Query("{'paymentFrom.id' : ?0}")
     List<Payments> findPaymentsFrom(String id);
     @Query("{'paymentTo.id' : ?0}")

@@ -75,13 +75,27 @@ public class MemberController {
 
     }
     @DeleteMapping("/delete/{id}")
-    public Member delete(@PathVariable String id){
+    public Member delete(@PathVariable String id) throws URISyntaxException, IOException, InterruptedException {
         Member existingMember = repository.findByIdentifier(id);
         if(existingMember!=null){
+           removeUnpaidPayments(existingMember);
            return repository.deleteByIdentifier(id);
         } else {
             return null;
         }
+    }
+
+    public void removeUnpaidPayments(Member member) throws URISyntaxException, IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+        String url;
+        url = String.format("http://localhost:8080/payments/delete/unpaid/" + member.getId());
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(url))
+                .header("Content-Type", "application/json")
+                .DELETE()
+                .build();
+
+        client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     @GetMapping("/login")

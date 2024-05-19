@@ -1,14 +1,10 @@
 package com.example.frontend.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.lang.reflect.Member;
 
 @Controller
 @CrossOrigin
@@ -73,6 +69,47 @@ public class FrontendController {
             e.printStackTrace();
         }
         return "paymentsHistoric";
+    }
+
+    @GetMapping("manageUsers")
+    public String manageUsers(Model model, @RequestParam(name = "memberID", required = false) String memberID) {
+        try {
+            model.addAttribute("memberID", memberID);
+        } catch (Exception  e) {
+            e.printStackTrace();
+        }
+        return "manageUsers";
+    }
+
+    @GetMapping("createUser")
+    public String createUser(Model model, @RequestParam(name = "memberID", required = false) String memberID) {
+        try {
+            model.addAttribute("memberID", memberID);
+        } catch (Exception  e) {
+            e.printStackTrace();
+        }
+        return "createUser";
+    }
+
+    @GetMapping("editUser")
+    public String editUser(Model model, @RequestParam(name = "memberID", required = false) String memberID, @RequestParam(name = "userToEditID", required = false) String userToEditID) {
+        try {
+            model.addAttribute("memberID", memberID);
+            model.addAttribute("userToEditID", userToEditID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "editUser";
+    }
+
+    @GetMapping("managePayments")
+    public String managePayments(Model model, @RequestParam(name = "memberID", required = false) String memberID) {
+        try {
+            model.addAttribute("memberID", memberID);
+        } catch (Exception  e) {
+            e.printStackTrace();
+        }
+        return "managePayments";
     }
 
 }

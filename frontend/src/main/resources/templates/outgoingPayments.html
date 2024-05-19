@@ -103,6 +103,8 @@
     <button id="profile">Profile</button>
     <button id="incomingPayments">Incoming Payments</button>
     <button id="paymentsHistoric">Payments Historic</button>
+    <button id="manageUsers" style="display: none;">Manage Users</button>
+    <button id="managePayments" style="display: none;">Manage Payments</button>
 </div>
 <div class="container">
     <div id="table-scroll">
@@ -142,8 +144,29 @@
         };
         xhr.send();
     }
-
     getMemberSync(memberId);
+
+    function updateProfileFields(member) {
+        const manageUsersButton = document.getElementById("manageUsers");
+        const managePaymentsButton = document.getElementById("managePayments");
+        const outgoingPaymentsButton = document.getElementById("outgoingPayments");
+        const incomingPaymentsButton = document.getElementById("incomingPayments");
+        const paymentsHistoricButton = document.getElementById("paymentsHistoric");
+
+        if (manageUsersButton && managePaymentsButton && outgoingPaymentsButton && incomingPaymentsButton && paymentsHistoricButton) {
+            if (member.membership === "ADMIN") {
+                manageUsersButton.style.display = "block";
+                managePaymentsButton.style.display = "block";
+                outgoingPaymentsButton.style.display = "none";
+                incomingPaymentsButton.style.display = "none";
+                paymentsHistoricButton.style.display = "none";
+
+            }
+        } else {
+            console.error("One or more elements not found in the DOM.");
+        }
+    }
+    updateProfileFields(member);
 
     function fetchOutgoingPayments(memberId) {
         fetch("http://localhost:8080/payments/from/" + memberId, {
@@ -177,7 +200,6 @@
                 console.error('Error fetching payments:', error);
             });
     }
-
     fetchOutgoingPayments(member.id);
 
     const pay = (paymentId) => {
@@ -215,6 +237,12 @@
     });
     document.getElementById("paymentsHistoric").addEventListener("click", function() {
         window.location.href = "paymentsHistoric?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("manageUsers").addEventListener("click", function() {
+        window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("managePayments").addEventListener("click", function() {
+        window.location.href = "managePayments?memberID=" + encodeURIComponent(memberId);
     });
 
 </script>
