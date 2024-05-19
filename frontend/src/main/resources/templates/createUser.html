@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <title>Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+
+            background-image: url('https://wallpapers.com/images/featured/cool-soccer-xx9ly9v0yostbag2.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+        }
+        .topnav {
+            overflow: hidden;
+            text-align: center;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .topnav button {
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            background-color: #007bff;
+            color: #fff;
+            margin: 0 3px;
+            border-radius: 7px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            width: 125px;
+            height: 50px;
+        }
+        .topnav button:hover {
+            background-color: #0056b3;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            margin-bottom: 5px;
+            display: block;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        select,
+        button[type="submit"], button#cancel {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover{
+            background-color: #0056b3;
+        }
+        button#cancel {
+            background-color: #818c9b;
+            color: #fff;
+            cursor: pointer;
+        }
+        button#cancel:hover {
+            background-color: #727a86;
+        }
+        .membership-label, .balance-label{
+            font-size: 14px;
+            color: #555;
+            margin-right: 5px;
+        }
+        #membership, #balance {
+            font-size: 14px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+<div class="topnav">
+    <button id="homepage">Homepage</button>
+    <button id="profile">Profile</button>
+    <button id="manageUsers">Manage Users</button>
+    <button id="managePayments">Manage Payments</button>
+</div>
+<div class="container">
+    <h2>Create User</h2>
+    <form id="createUserForm">
+        <input type="text" id="name" name="name" placeholder="Name" required>
+
+        <label for="membership" class="membership-label">Membership:</label>
+
+        <select id="membership" name="membership" required>
+            <option value="ADMIN">ADMIN</option>
+            <option value="PLAYER">PLAYER</option>
+            <option value="COACH">COACH</option>
+            <option value="BOARD">BOARD</option>
+            <option value="PRESIDENT">PRESIDENT</option>
+        </select>
+        <br>
+
+        <input type="email" id="email" name="email" placeholder="Email" required>
+
+        <input type="password" id="password" name="password" placeholder="Password" required>
+
+        <input type="number" id="balance" name="balance" placeholder="Balance" min="0" required>
+
+        <button type="submit">Create</button>
+    </form>
+
+    <button id="cancel">Cancel</button>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get('memberID');
+
+    let member;
+
+    function getMemberSync(memberId) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", `http://localhost:8080/members/get/${memberId}`, false);
+
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                member = JSON.parse(xhr.responseText);
+            } else {
+                console.error("Failed to fetch member. Status:", xhr.status);
+            }
+        };
+        xhr.send();
+    }
+    getMemberSync(memberId);
+
+    document.getElementById("createUserForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        var name = document.getElementById("name").value;
+        var membership = document.getElementById("membership").value;
+        var email = document.getElementById("email").value;
+        var password = document.getElementById("password").value;
+        var balance = document.getElementById("balance").value;
+
+        var data = {
+            name: name,
+            membership: membership,
+            email: email,
+            password: password,
+            balance: balance
+        };
+
+        fetch("http://localhost:8080/members/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("Failed to create member.");
+                }
+            })
+            .then(data => {
+                alert("Member created successfully!");
+
+                window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
+            })
+            .catch(error => {
+                console.error("Error updating member:", error);
+                alert("Failed to update member. Please try again later.");
+            });
+    });
+
+    document.getElementById("cancel").addEventListener("click", function() {
+        window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("homepage").addEventListener("click", function() {
+        window.location.href = "homepage?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("profile").addEventListener("click", function() {
+        window.location.href = "profile?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("manageUsers").addEventListener("click", function() {
+        window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("managePayments").addEventListener("click", function() {
+        window.location.href = "managePayments?memberID=" + encodeURIComponent(memberId);
+    });
+
+</script>
+</body>
+</html>

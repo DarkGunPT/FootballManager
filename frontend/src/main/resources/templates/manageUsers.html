@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <title>ADMIN</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+
+            background-image: url('https://wallpapers.com/images/featured/cool-soccer-xx9ly9v0yostbag2.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+        }
+        .container {
+            padding-top: 135px;
+            text-align: center;
+            color: #fff;
+            font-size: 36px;
+            font-weight: bold;
+            border: none;
+        }
+        .topnav {
+            overflow: hidden;
+            text-align: center;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .topnav button {
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            background-color: #007bff;
+            color: #fff;
+            margin: 0 3px;
+            border-radius: 7px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            width: 125px;
+            height: 50px;
+        }
+        .topnav button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #0056b3;
+            padding: 5px;
+            text-align: center;
+        }
+        th {
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #0056b3;
+        }
+        td {
+            font-size: 20px;
+        }
+        tr {
+            background-color: #5f94ce;
+        }
+        tr:hover {
+            background-color: #007bff;
+        }
+        .editUserButton {
+            font-weight: bold;
+            background-color: transparent;
+            color: #cba716;
+            border: none;
+            padding: 5px 5px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition-duration: 0.4s;
+        }
+        .editUserButton:hover {
+            color: #b49721;
+        }
+        .removeUserBottom {
+            font-weight: bold;
+            background-color: transparent;
+            color: #de0b0b;
+            border: none;
+            padding: 5px 5px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition-duration: 0.4s;
+        }
+        .removeUserBottom:hover {
+            color: #ad1b1c;
+        }
+        .createUserButton {
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition-duration: 0.4s;
+        }
+        .createUserButton:hover {
+            background-color: #45a049;
+        }
+        #table-scroll {
+            margin: 0 auto 20px;
+            width: 55%;
+            height:500px;
+            overflow:auto;
+        }
+    </style>
+</head>
+<body>
+<div class="topnav">
+    <button id="homepage">Homepage</button>
+    <button id="profile">Profile</button>
+    <button id="managePayments">Manage Payments</button>
+</div>
+<div class="container">
+    <div id="table-scroll">
+        <table id="usersTable">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Membership</th>
+                <th>Admission Date</th>
+                <th>Balance</th>
+                <th>
+                    <button class="createUserButton" onclick="createUser()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get('memberID');
+
+    let member;
+    function getMemberSync(memberId) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", `http://localhost:8080/members/get/${memberId}`, false);
+
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                member = JSON.parse(xhr.responseText);
+            } else {
+                console.error("Failed to fetch member. Status:", xhr.status);
+            }
+        };
+        xhr.send();
+    }
+    getMemberSync(memberId);
+
+    function fetchUsers() {
+        fetch("http://localhost:8080/members/all", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                return response.json();
+            })
+            .then(users => {
+                document.getElementById("usersTable").querySelector("tbody").innerHTML = "";
+
+                users.forEach(user => {
+                    const row = `
+                    <tr>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.membership}</td>
+                        <td>${user.admissionDate}</td>
+                        <td>${user.balance}</td>
+                        <td>
+                             <button class="editUserButton" onclick="editUser('${user.id}')">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button class="removeUserBottom" onclick="removeUser('${user.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                    document.getElementById("usersTable").querySelector("tbody").innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching payments:', error);
+            });
+    }
+    fetchUsers();
+
+    const createUser = () => {
+        window.location.href = "createUser?memberID=" + encodeURIComponent(memberId);
+    }
+
+    const editUser = (userToEditID) => {
+        window.location.href = "editUser?memberID=" + encodeURIComponent(memberId) + "&userToEditID=" + encodeURIComponent(userToEditID);
+    };
+
+    const removeUser = (memberId) => {
+        fetch("http://localhost:8080/members/delete/" + memberId, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("Failed to remove user.");
+                }
+            })
+            .then(data => {
+                alert("User removed successfully!");
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error("Error paying payment:", error);
+                alert("Failed to delete user. Please try again later.");
+            });
+    }
+
+    document.getElementById("homepage").addEventListener("click", function() {
+        window.location.href = "homepage?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("profile").addEventListener("click", function() {
+        window.location.href = "profile?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("managePayments").addEventListener("click", function() {
+        window.location.href = "managePayments?memberID=" + encodeURIComponent(memberId);
+    });
+
+</script>
+</body>
+</html>

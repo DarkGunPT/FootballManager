@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <title>Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+
+            background-image: url('https://wallpapers.com/images/featured/cool-soccer-xx9ly9v0yostbag2.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+        }
+        .topnav {
+            overflow: hidden;
+            text-align: center;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .topnav button {
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            background-color: #007bff;
+            color: #fff;
+            margin: 0 3px;
+            border-radius: 7px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            width: 125px;
+            height: 50px;
+        }
+        .topnav button:hover {
+            background-color: #0056b3;
+        }
+        .profile-container {
+            position: relative;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .profile-heading {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-label {
+            font-weight: bold;
+        }
+        .profile-data {
+            margin-bottom: 10px;
+        }
+        #editButton {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color:  #818c9b;
+        }
+        #editButton:hover {
+            color: #727a86;
+        }
+        #saveButton {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #31752f;
+        }
+        #saveButton:hover {
+            color: #2d622c;
+        }
+        #cancelButton {
+            position: absolute;
+            bottom: 10px;
+            right: 40px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #932727;
+        }
+        #cancelButton:hover {
+            color: #7e2727;
+        }
+    </style>
+</head>
+<body>
+<div class="topnav">
+    <button id="homepage">Homepage</button>
+    <button id="profile">Profile</button>
+    <button id="manageUsers">Manage Users</button>
+    <button id="managePayments">Manage Payments</button>
+</div>
+
+<div class="profile-container">
+    <h2 class="profile-heading">Edit User</h2>
+    <div class="profile-data">
+        <span class="profile-label">Name:</span>
+        <span id="profile-name"></span>
+    </div>
+    <div class="profile-data">
+        <span class="profile-label">Email:</span>
+        <span id="profile-email"></span>
+    </div>
+    <div class="profile-data">
+        <span class="profile-label">Membership:</span>
+        <span id="profile-membership"></span>
+    </div>
+    <div class="profile-data">
+        <span class="profile-label" id="balance-label"></span>
+        <span id="profile-balance"></span>
+    </div>
+    <div class="profile-data">
+        <span class="profile-label">Admission Date:</span>
+        <span id="profile-admission-date"></span>
+    </div>
+
+    <button id="saveButton" style="display: none;">
+        <i class="fas fa-check"></i>
+    </button>
+
+    <button id="cancelButton" style="display: none;">
+        <i class="fas fa-times"></i>
+    </button>
+
+
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get('memberID');
+    const userToEditID = urlParams.get('userToEditID');
+
+    let member;
+    let userToEdit;
+
+    function getMemberSync(memberId) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", `http://localhost:8080/members/get/${memberId}`, false);
+
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                member = JSON.parse(xhr.responseText);
+            } else {
+                console.error("Failed to fetch member. Status:", xhr.status);
+            }
+        };
+        xhr.send();
+    }
+    getMemberSync(memberId);
+
+    function getuserToEditSync(userToEditID) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", `http://localhost:8080/members/get/${userToEditID}`, false);
+
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                userToEdit = JSON.parse(xhr.responseText);
+            } else {
+                console.error("Failed to fetch member. Status:", xhr.status);
+            }
+        };
+        xhr.send();
+    }
+    getuserToEditSync(userToEditID);
+
+    document.getElementById("saveButton").style.display = "block";
+    document.getElementById("cancelButton").style.display = "block";
+
+    document.getElementById("profile-name").innerHTML = `<input type="text" value="${userToEdit.name}" id="edit-name" disabled>`;
+    document.getElementById("profile-membership").innerHTML = `<select id="edit-membership" name="membership">
+            <option value="ADMIN">ADMIN</option>
+            <option value="PLAYER">PLAYER</option>
+            <option value="COACH">COACH</option>
+            <option value="BOARD">BOARD</option>
+            <option value="PRESIDENT">PRESIDENT</option>
+        </select>`;
+    document.getElementById("profile-email").innerHTML = `<input type="email" value="${userToEdit.email}" id="edit-email" disabled>`;
+    document.getElementById("profile-balance").innerHTML = `<input type="number" value="${userToEdit.balance}" min="0" id="edit-balance">`;
+    document.getElementById("profile-admission-date").innerHTML = `<input type="date" value="${userToEdit.admissionDate}" id="edit-admission-date" disabled>`;
+
+    document.getElementById("balance-label").textContent = userToEdit.membership === "VIP" ? "Subscription:" : "Salary:";
+
+    document.getElementById("saveButton").addEventListener("click", function() {
+        const updatedName = document.getElementById("edit-name").value;
+        const updatedMembership = document.getElementById("edit-membership").value;
+        const updatedEmail = document.getElementById("edit-email").value;
+        const updatedBalance = parseFloat(document.getElementById("edit-balance").value);
+        const updatedAdmissionDate = document.getElementById("edit-admission-date").value;
+
+        const updatedMember = {
+            ...userToEdit,
+            name: updatedName,
+            membership: updatedMembership,
+            email: updatedEmail,
+            balance: updatedBalance,
+            admissionDate: updatedAdmissionDate
+        };
+
+        fetch("http://localhost:8080/members/update/" + userToEdit.id, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(updatedMember)
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("Failed to update member.");
+                }
+            })
+            .then(data => {
+                alert("Member updated successfully!");
+
+                window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
+            })
+            .catch(error => {
+                console.error("Error updating member:", error);
+                alert("Failed to update member. Please try again later.");
+            });
+    });
+
+    document.getElementById("cancelButton").addEventListener("click", function() {
+        window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
+    });
+
+    document.getElementById("homepage").addEventListener("click", function() {
+        window.location.href = "homepage?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("profile").addEventListener("click", function() {
+        window.location.href = "profile?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("manageUsers").addEventListener("click", function() {
+        window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("managePayments").addEventListener("click", function() {
+        window.location.href = "managePayments?memberID=" + encodeURIComponent(memberId);
+    });
+
+</script>
+</body>
+</html>
