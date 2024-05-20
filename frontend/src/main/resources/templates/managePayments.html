@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <title>ADMIN</title>
     <style>
         body {
@@ -51,6 +53,86 @@
         .topnav button:hover {
             background-color: #0056b3;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #0056b3;
+            padding: 5px;
+            text-align: center;
+        }
+        th {
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #0056b3;
+        }
+        td {
+            font-size: 20px;
+        }
+        tr {
+            background-color: #5f94ce;
+        }
+        tr:hover {
+            background-color: #007bff;
+        }
+        .editPaymentButton {
+            font-weight: bold;
+            background-color: transparent;
+            color: #cba716;
+            border: none;
+            padding: 5px 5px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition-duration: 0.4s;
+        }
+        .editPaymentButton:hover {
+            color: #b49721;
+        }
+        .removePaymentButton {
+            font-weight: bold;
+            background-color: transparent;
+            color: #de0b0b;
+            border: none;
+            padding: 5px 5px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition-duration: 0.4s;
+        }
+        .removePaymentButton:hover {
+            color: #ad1b1c;
+        }
+        .createPaymentButton {
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition-duration: 0.4s;
+        }
+        .createPaymentButton:hover {
+            background-color: #45a049;
+        }
+        #table-scroll {
+            margin: 0 auto 20px;
+            width: 55%;
+            height:500px;
+            overflow:auto;
+        }
     </style>
 </head>
 <body>
@@ -60,7 +142,28 @@
     <button id="manageUsers">Manage Users</button>
 </div>
 <div class="container">
-    Manage Users
+    <div id="table-scroll">
+        <table id="paymentsTable">
+            <thead>
+            <tr>
+                <th>Payment From</th>
+                <th>Payment To</th>
+                <th>Value</th>
+                <th>Paid</th>
+                <th>Limit Date</th>
+                <th>Payment Date</th>
+                <th>
+                    <button class="createPaymentButton" onclick="createPayment()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -83,8 +186,82 @@
         };
         xhr.send();
     }
-
     getMemberSync(memberId);
+
+    function fetchPayments() {
+        fetch("http://localhost:8080/payments/all", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                return response.json();
+            })
+            .then(payments => {
+                document.getElementById("paymentsTable").querySelector("tbody").innerHTML = "";
+
+                payments.forEach(payment => {
+                    const row = `
+                    <tr>
+                        <td>${payment.paymentFrom.name}</td>
+                        <td>${payment.paymentTo.name}</td>
+                        <td>${payment.value}</td>
+                        <td>${payment.paid ? "Paid" : "Not paid"}</td>
+                        <td>${payment.limitDate}</td>
+                        <td>${payment.paid ? payment.paymentDate : "Not paid"}</td>
+                        <td>
+                            ${!payment.paid ? `
+                             <button class="editPaymentButton" onclick="editPayment('${payment.id}')">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button class="removePaymentButton" onclick="removePayment('${payment.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+                    document.getElementById("paymentsTable").querySelector("tbody").innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching payments:', error);
+            });
+    }
+    fetchPayments();
+
+    const createPayment = () => {
+        window.location.href = "createPayment?memberID=" + encodeURIComponent(memberId);
+    }
+
+    const editPayment = (paymentToEditID) => {
+        window.location.href = "editPayment?memberID=" + encodeURIComponent(memberId) + "&paymentToEditID=" + encodeURIComponent(paymentToEditID);
+    };
+
+    const removePayment = (paymentId) => {
+        fetch("http://localhost:8080/payments/delete/" + paymentId, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("Failed to remove payment.");
+                }
+            })
+            .then(data => {
+                alert("Payment removed successfully!");
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error("Error removing payment:", error);
+                alert("Failed to delete payment. Please try again later.");
+            });
+    }
 
     document.getElementById("homepage").addEventListener("click", function() {
         window.location.href = "homepage?memberID=" + encodeURIComponent(memberId);
@@ -95,7 +272,6 @@
     document.getElementById("manageUsers").addEventListener("click", function() {
         window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
     });
-
 
 </script>
 </body>
