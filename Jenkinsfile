@@ -3,7 +3,7 @@ pipeline {
     environment {
         BACKEND_IMAGE = 'backend'
         FRONTEND_IMAGE = 'frontend'
-        DOCKER_HUB_REPO = 'xicosimoes/teste'
+        DOCKER_HUB_REPO = 'darkgunpt/football_pd'
         DOCKER_USERNAME = ''
         DOCKER_PASSWORD = ''
         GMAIL_USERNAME = ''
