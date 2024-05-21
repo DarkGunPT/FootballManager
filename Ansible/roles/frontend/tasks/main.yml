@@ -1,0 +1,27 @@
+- name: Stop Frontend container
+  docker_container:
+    name: "{{ frontend_container }}"
+    state: stopped
+  ignore_errors: yes
+
+- name: "Check if {{ frontend_tag }} image exists locally"
+  command: docker images "{{ image_repository }}:{{ frontend_tag }}"
+  register: image_exists
+  changed_when: false
+
+- name: "Pull {{ frontend_tag }} image from Docker Hub"
+  docker_image:
+    name: "{{ image_repository }}:{{ frontend_tag }}"
+    source: pull
+  when: image_exists.rc != 0 or force_pull | default(false)
+
+- name: " Start {{ frontend_container }} container " 
+  docker_container:
+    name: "{{ frontend_container }}"
+    image: "{{ image_repository }}:{{ frontend_tag }}"
+    state: started
+    restart_policy: always
+    ports:
+      - "{{frontend_port}}:{{frontend_port}}"
+    networks:
+      - name: "{{ network }}"

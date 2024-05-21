@@ -1,0 +1,38 @@
+- name: Instance Deployment
+  hosts: localhost
+  vars_files:
+    - vars/vars.yml
+  become: yes
+  tasks:
+    - name: Prepare to set user password
+      set_fact:
+        frontend_tag: "{{ frontend_tag }}"
+        backend_tag: "{{ backend_tag }}"
+        database_image: "{{ database_image }}"
+        image_repository: "{{ image_repository }}"
+        database_container: "{{ database_container }}"
+        backend_container: "{{ backend_container }}"
+        frontend_container: "{{ frontend_container }}"
+        network: "{{ network }}"
+        database_role: "{{ database_role }}"
+        backend_role: "{{ backend_role }}"
+        frontend_role: "{{ frontend_role }}"
+        database_volume: "{{ database_volume }}"
+    - name: Create App network
+      docker_network:
+        name: "{{ network }}"
+        driver: bridge
+
+    - name: "Start {{ database_container }} container"
+      import_role:
+        name: "{{ database_role }}"
+      
+    - name: "Start {{ backend_container }} container"
+      import_role:
+        name: "{{ backend_role }}"
+
+    - name: "Start {{ frontend_container }} container"
+      import_role:
+        name: "{{ frontend_role }}"
+
+

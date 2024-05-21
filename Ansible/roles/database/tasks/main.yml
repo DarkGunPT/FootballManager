@@ -1,0 +1,33 @@
+- name: "Create Docker volume for {{ database_container }}"
+  docker_volume:
+    name: "{{ database_volume }}"
+
+- name: "Stop {{ database_container }} container"
+  docker_container:
+    name: "{{ database_container }}"
+    state: stopped
+  ignore_errors: yes
+
+- name: "Check if {{ database_container }} image exists locally..."
+  command: docker images "{{ database_image }}"
+  register: image_exists
+  changed_when: false
+
+- name: Pull MongoDB image
+  docker_image:
+    name: "{{database_image}}"
+    source: pull
+  when: image_exists.rc != 0 or force_pull | default(false)
+
+- name: Start MongoDB container
+  docker_container:
+    name: "{{ database_container }}"
+    image: "{{database_image}}"
+    state: started
+    restart_policy: always
+    ports:
+      - "{{ database_port}}:{{ database_port}}"
+    networks:
+      - name: "{{ network }}"
+    volumes:
+      - "{{ database_volume }}:/var/lib/docker/volumes/mongo-data/_data"

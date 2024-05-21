@@ -1,0 +1,15 @@
+database_image: "mongo:latest"
+database_volume: "mongo-data"
+database_port: 27017
+frontend_port: 8081
+backend_port: 8080
+image_repository: "darkgunpt/football_pd"
+backend_tag: "backend"
+frontend_tag: "frontend"
+backend_container: "backend"
+frontend_container: "frontend"
+database_container: "mongo"
+database_role: "database"
+backend_role: "backend"
+frontend_role: "frontend"
+network: "football-network"

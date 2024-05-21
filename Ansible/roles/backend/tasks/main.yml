@@ -1,0 +1,27 @@
+- name: "Stop {{ backend_container }} container"
+  docker_container:
+    name: backend
+    state: stopped
+  ignore_errors: yes
+
+- name: "Check if {{ backend_tag }} image exists locally"
+  command: docker images "{{ image_repository }}:{{ backend_tag }}"
+  register: image_exists
+  changed_when: false
+
+- name: " Pull {{ backend_tag}} image from Docker Hub"
+  docker_image:
+    name: "{{ image_repository }}:{{ backend_tag }}"
+    source: pull
+  when: image_exists.rc != 0 or force_pull | default(false)
+
+- name: "Start {{ backend_container }} container"
+  docker_container:
+    name: "{{ backend_container }}"
+    image: "{{ image_repository }}:{{ backend_tag }}"
+    state: started
+    restart_policy: always
+    ports:
+      - "{{ backend_port }}:{{ backend_port }}"
+    networks:
+      - name: "{{ network }}"

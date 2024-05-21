@@ -1,0 +1,73 @@
+- name: Stop and remove app containers
+  hosts: localhost
+  become: yes
+  vars_files:
+    - vars/vars.yml
+  tasks:
+    - name: Prepare to set user password
+      set_fact:
+        frontend_tag: "{{ frontend_tag }}"
+        backend_tag: "{{ backend_tag }}"
+        database_image: "{{ database_image }}"
+        image_repository: "{{ image_repository }}"
+        database_container: "{{ database_container }}"
+        backend_container: "{{ backend_container }}"
+        frontend_container: "{{ frontend_container }}"
+
+    - name: "Stop {{ database_container }} container"
+      docker_container:
+        name: "{{ database_container }}"
+        state: stopped
+      ignore_errors: yes
+
+    - name: "Remove {{ database_container }} container"
+      docker_container:
+        name: "{{ database_container }}"
+        state: absent
+      ignore_errors: yes
+
+    - name: "Stop {{ backend_container }} container"
+      docker_container:
+        name: "{{ backend_container }}"
+        state: stopped
+      ignore_errors: yes
+
+    - name: "Remove {{ backend_container }} container"
+      docker_container:
+        name: "{{ backend_container }}"
+        state: absent
+      ignore_errors: yes
+
+    - name: "Stop {{ frontend_container }} container"
+      docker_container:
+        name: "{{ frontend_container }}"
+        state: stopped
+      ignore_errors: yes
+
+    - name: "Remove {{ frontend_container }} container"
+      docker_container:
+        name: "{{ frontend_container }}"
+        state: absent
+      ignore_errors: yes
+
+- name: Remove app images
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: "Removing {{ image_repository }}:{{ backend_tag }} image..."
+      docker_image:
+        name: "{{ image_repository }}:{{ backend_tag }}"
+        state: absent
+      ignore_errors: yes
+
+    - name: "Removing {{ image_repository }}:{{ frontend_tag }} image..."
+      docker_image:
+        name: "{{ image_repository }}:{{ frontend_tag }}"
+        state: absent
+      ignore_errors: yes
+
+    - name: "Removing {{ database_image }} image..."
+      docker_image:
+        name: "{{ database_image }}"
+        state: absent
+      ignore_errors: yes
