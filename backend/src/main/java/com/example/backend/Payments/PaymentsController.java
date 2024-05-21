@@ -1,5 +1,6 @@
 package com.example.backend.Payments;
 
+import com.example.backend.Member.Member;
 import com.example.backend.Member.Membership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -51,7 +52,6 @@ public class PaymentsController {
     }
     @DeleteMapping("/delete/unpaid/{memberId}")
     public List<Payments> deleteUnpaidPayments(@PathVariable String memberId){
-        System.out.println("memberId: " + memberId);
         return repository.findByMemberIdAndStatus(memberId, false);
     }
 
@@ -68,5 +68,27 @@ public class PaymentsController {
     @GetMapping("/to/{memberId}")
     public List<Payments> memberPaymentsTo(@PathVariable String memberId){
         return repository.findPaymentsTo(memberId);
+    }
+
+    @GetMapping("/get/{id}")
+        public Payments getPayment(@PathVariable String id) {
+        return repository.findByIdentifier(id);
+    }
+
+    @PutMapping("/update/{id}")
+    public Payments update(@PathVariable String id, @RequestBody Payments request){
+        Payments existingPayment = repository.findByIdentifier(id);
+
+        if(existingPayment!=null){
+            existingPayment.setPaymentFrom(request.paymentFrom);
+            existingPayment.setPaymentTo(request.paymentTo);
+            existingPayment.setPaid(request.paid);
+            existingPayment.setValue(request.value);
+            existingPayment.setLimitDate(request.limitDate);
+            existingPayment.setPaymentDate(request.paymentDate);
+            return repository.save(existingPayment);
+        }else{
+            return null;
+        }
     }
 }

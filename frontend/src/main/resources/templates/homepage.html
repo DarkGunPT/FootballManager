@@ -91,20 +91,14 @@
     getMemberSync(memberId);
 
     function updateProfileFields(member) {
+        if(member.membership === "ADMIN" || member.membership === "VIP"){}
         const manageUsersButton = document.getElementById("manageUsers");
         const managePaymentsButton = document.getElementById("managePayments");
-        const outgoingPaymentsButton = document.getElementById("outgoingPayments");
-        const incomingPaymentsButton = document.getElementById("incomingPayments");
-        const paymentsHistoricButton = document.getElementById("paymentsHistoric");
 
-        if (manageUsersButton && managePaymentsButton && outgoingPaymentsButton && incomingPaymentsButton && paymentsHistoricButton) {
+        if (manageUsersButton && managePaymentsButton) {
             if (member.membership === "ADMIN") {
                 manageUsersButton.style.display = "block";
                 managePaymentsButton.style.display = "block";
-                outgoingPaymentsButton.style.display = "none";
-                incomingPaymentsButton.style.display = "none";
-                paymentsHistoricButton.style.display = "none";
-
             }
         } else {
             console.error("One or more elements not found in the DOM.");

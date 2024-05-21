@@ -70,6 +70,7 @@
         input[type="email"],
         input[type="password"],
         input[type="number"],
+        input[type="date"],
         select,
         button[type="submit"], button#cancel {
             width: 100%;
@@ -95,16 +96,10 @@
         button#cancel:hover {
             background-color: #727a86;
         }
-        .membership-label{
+        .payment-from-label, .payment-to-label, .limitDate-label{
             font-size: 14px;
             color: #555;
             margin-right: 5px;
-        }
-        #membership {
-            font-size: 14px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
         }
     </style>
 </head>
@@ -119,26 +114,19 @@
     <button id="managePayments">Manage Payments</button>
 </div>
 <div class="container">
-    <h2>Create User</h2>
-    <form id="createUserForm">
-        <input type="text" id="name" name="name" placeholder="Name" required>
+    <h2>Create Payment</h2>
+    <form id="createPaymentForm">
 
-        <label for="membership" class="membership-label">Membership:</label>
+        <label for="payment-from" class="payment-from-label">Payment From:</label>
+        <span id="payment-from"></span>
 
-        <select id="membership" name="membership" required>
-            <option value="ADMIN">ADMIN</option>
-            <option value="PLAYER">PLAYER</option>
-            <option value="COACH">COACH</option>
-            <option value="BOARD">BOARD</option>
-            <option value="PRESIDENT">PRESIDENT</option>
-        </select>
-        <br>
+        <label for="payment-to" class="payment-to-label">Payment To:</label>
+        <span id="payment-to"></span>
 
-        <input type="email" id="email" name="email" placeholder="Email" required>
+        <input type="number" id="value" name="value" placeholder="Value" min="0" required>
 
-        <input type="password" id="password" name="password" placeholder="Password" required>
-
-        <input type="number" id="balance" name="balance" placeholder="Balance" min="0" required>
+        <label for="limitDate" class="limitDate-label">Limit Date:</label>
+        <input type="date" id="limitDate" name="limitDate" required>
 
         <button type="submit">Create</button>
     </form>
@@ -151,6 +139,13 @@
     const memberId = urlParams.get('memberID');
 
     let member;
+    let users;
+
+    const club = {
+        id: "CLUB",
+        name: "Football Club",
+        email: "clube@gmail.com",
+    }
 
     function getMemberSync(memberId) {
         const xhr = new XMLHttpRequest();
@@ -169,24 +164,76 @@
     }
     getMemberSync(memberId);
 
-    document.getElementById("createUserForm").addEventListener("submit", function(event) {
+    function getUsersSync() {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", `http://localhost:8080/members/all`, false);
+
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                users = JSON.parse(xhr.responseText);
+                users.push(club)
+            } else {
+                console.error("Failed to fetch member. Status:", xhr.status);
+            }
+        };
+        xhr.send();
+    }
+    getUsersSync();
+
+    function createDropdown(flag) {
+        const dropdown = document.createElement("select");
+        if(flag){
+            dropdown.id = "create-from";
+        }else{
+            dropdown.id = "create-to";
+        }
+        users.forEach(user => {
+            const option = document.createElement("option");
+            option.value = user.id;
+            option.textContent = user.name;
+
+            dropdown.appendChild(option);
+        });
+
+        return dropdown;
+    }
+
+    document.getElementById("payment-from").appendChild(createDropdown(true));
+    document.getElementById("payment-to").appendChild(createDropdown(false));
+
+    document.getElementById("createPaymentForm").addEventListener("submit", function(event) {
         event.preventDefault();
 
-        var name = document.getElementById("name").value;
-        var membership = document.getElementById("membership").value;
-        var email = document.getElementById("email").value;
-        var password = document.getElementById("password").value;
-        var balance = document.getElementById("balance").value;
+        var paymentFromId = document.getElementById("create-from").value;
+        var paymentToId = document.getElementById("create-to").value;
+
+        const paymentFrom = users.find(user => user.id === paymentFromId);
+        const paymentTo = users.find(user => user.id === paymentToId);
+
+        var value = document.getElementById("value").value;
+        var paid = false;
+        var limitDate = document.getElementById("limitDate").value;
 
         var data = {
-            name: name,
-            membership: membership,
-            email: email,
-            password: password,
-            balance: balance
+            paymentFrom: {
+                id: paymentFrom.id,
+                name: paymentFrom.name,
+                email: paymentFrom.email
+            },
+            paymentTo: {
+                id: paymentTo.id,
+                name: paymentTo.name,
+                email: paymentTo.email
+            },
+            paid: paid,
+            value: value,
+            limitDate: limitDate,
+            paymentDate: limitDate
         };
 
-        fetch("http://localhost:8080/members/create", {
+        fetch("http://localhost:8080/payments/create", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -197,22 +244,22 @@
                 if (response.ok) {
                     return response.json();
                 } else {
-                    throw new Error("Failed to create member.");
+                    throw new Error("Failed to create payment.");
                 }
             })
             .then(data => {
-                alert("Member created successfully!");
+                alert("Payment created successfully!");
 
-                window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
+                window.location.href = "managePayments?memberID=" + encodeURIComponent(memberId);
             })
             .catch(error => {
-                console.error("Error updating member:", error);
-                alert("Failed to update member. Please try again later.");
+                console.error("Error creating payment:", error);
+                alert("Failed to create payment. Please try again later.");
             });
     });
 
     document.getElementById("cancel").addEventListener("click", function() {
-        window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
+        window.location.href = "managePayments?memberID=" + encodeURIComponent(memberId);
     });
     document.getElementById("homepage").addEventListener("click", function() {
         window.location.href = "homepage?memberID=" + encodeURIComponent(memberId);

@@ -50,7 +50,7 @@
         .topnav button:hover {
             background-color: #0056b3;
         }
-        .profile-container {
+        .payment-container {
             position: relative;
             max-width: 400px;
             margin: 50px auto;
@@ -59,28 +59,15 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .profile-heading {
+        .payment-heading {
             text-align: center;
             margin-bottom: 20px;
         }
-        .profile-label {
+        .payment-label {
             font-weight: bold;
         }
-        .profile-data {
+        .payment-data {
             margin-bottom: 10px;
-        }
-        #editButton {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 20px;
-            color:  #818c9b;
-        }
-        #editButton:hover {
-            color: #727a86;
         }
         #saveButton {
             position: absolute;
@@ -121,47 +108,54 @@
     <button id="managePayments">Manage Payments</button>
 </div>
 
-<div class="profile-container">
-    <h2 class="profile-heading">Edit User</h2>
-    <div class="profile-data">
-        <span class="profile-label">Name:</span>
-        <span id="profile-name"></span>
+<div class="payment-container">
+    <h2 class="payment-heading">Edit Payment</h2>
+    <div class="payment-data">
+        <span class="payment-label">Payment from:</span>
+        <span id="payment-from"></span>
     </div>
-    <div class="profile-data">
-        <span class="profile-label">Email:</span>
-        <span id="profile-email"></span>
+    <div class="payment-data">
+        <span class="payment-label">Payment to:</span>
+        <span id="payment-to"></span>
     </div>
-    <div class="profile-data">
-        <span class="profile-label">Membership:</span>
-        <span id="profile-membership"></span>
+    <div class="payment-data">
+        <span class="payment-label">Value:</span>
+        <span id="payment-value"></span>
     </div>
-    <div class="profile-data">
-        <span class="profile-label" id="balance-label"></span>
-        <span id="profile-balance"></span>
+    <div class="payment-data">
+        <span class="payment-label">Paid: </span>
+        <span id="payment-paid"></span>
     </div>
-    <div class="profile-data">
-        <span class="profile-label">Admission Date:</span>
-        <span id="profile-admission-date"></span>
+    <div class="payment-data">
+        <span class="payment-label">Limit Date:</span>
+        <span id="payment-limit-date"></span>
     </div>
-
+    <div class="payment-data">
+        <span class="payment-label">Payment Date:</span>
+        <span id="payment-date"></span>
+    </div>
     <button id="saveButton" style="display: none;">
         <i class="fas fa-check"></i>
     </button>
-
     <button id="cancelButton" style="display: none;">
         <i class="fas fa-times"></i>
     </button>
-
-
 </div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const memberId = urlParams.get('memberID');
-    const userToEditID = urlParams.get('userToEditID');
+    const paymentToEditID = urlParams.get('paymentToEditID');
 
     let member;
-    let userToEdit;
+    let paymentToEdit;
+    let users;
+
+    const club = {
+            id: "CLUB",
+            name: "Football Club",
+            email: "clube@gmail.com",
+        }
 
     function getMemberSync(memberId) {
         const xhr = new XMLHttpRequest();
@@ -180,84 +174,135 @@
     }
     getMemberSync(memberId);
 
-    function getuserToEditSync(userToEditID) {
+    function getUsersSync() {
         const xhr = new XMLHttpRequest();
-        xhr.open("GET", `http://localhost:8080/members/get/${userToEditID}`, false);
+        xhr.open("GET", `http://localhost:8080/members/all`, false);
 
         xhr.setRequestHeader("Content-Type", "application/json");
 
         xhr.onload = function() {
             if (xhr.status === 200) {
-                userToEdit = JSON.parse(xhr.responseText);
+                users = JSON.parse(xhr.responseText);
+                users.push(club)
             } else {
                 console.error("Failed to fetch member. Status:", xhr.status);
             }
         };
         xhr.send();
     }
-    getuserToEditSync(userToEditID);
+    getUsersSync();
+
+    function getPaymentToEditSync(paymentToEditID) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", `http://localhost:8080/payments/get/${paymentToEditID}`, false);
+
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                paymentToEdit = JSON.parse(xhr.responseText);
+            } else {
+                console.error("Failed to fetch Payment. Status:", xhr.status);
+            }
+        };
+        xhr.send();
+    }
+    getPaymentToEditSync(paymentToEditID);
+
     document.getElementById("saveButton").style.display = "block";
     document.getElementById("cancelButton").style.display = "block";
 
-    document.getElementById("profile-name").innerHTML = `<input type="text" value="${userToEdit.name}" id="edit-name" disabled>`;
-    const membershipOptions = ["ADMIN", "PLAYER", "COACH", "BOARD", "PRESIDENT"];
-    let dropdownHTML = '<select id="edit-membership" name="membership">';
-    membershipOptions.forEach(option => {
-        const selected = option === userToEdit.membership ? ' selected' : '';
-        dropdownHTML += `<option value="${option}"${selected}>${option}</option>`;
-    });
-    dropdownHTML += '</select>';
+    function createDropdown(payment, flag) {
+        const dropdown = document.createElement("select");
+        if(flag){
+            dropdown.id = "edit-from";
+        }else{
+            dropdown.id = "edit-to";
+        }
+        users.forEach(user => {
+            const option = document.createElement("option");
+            option.value = user.id;
+            option.textContent = user.name;
 
-    document.getElementById("profile-membership").innerHTML = dropdownHTML;
-    document.getElementById("profile-email").innerHTML = `<input type="email" value="${userToEdit.email}" id="edit-email" disabled>`;
-    document.getElementById("profile-balance").innerHTML = `<input type="number" value="${userToEdit.balance}" min="0" id="edit-balance">`;
-    document.getElementById("profile-admission-date").innerHTML = `<input type="date" value="${userToEdit.admissionDate}" id="edit-admission-date" disabled>`;
+            if (user.id === payment.id) {
+                option.selected = true;
+            }
 
-    document.getElementById("balance-label").textContent = userToEdit.membership === "VIP" ? "Subscription:" : "Salary:";
+            dropdown.appendChild(option);
+        });
+
+        return dropdown;
+    }
+
+    document.getElementById("payment-from").appendChild(createDropdown(paymentToEdit.paymentFrom, true));
+    document.getElementById("payment-to").appendChild(createDropdown(paymentToEdit.paymentTo, false));
+    document.getElementById("payment-paid").innerHTML = `
+            <input type="checkbox" id="edit-paid" value="${paymentToEdit.paid}" disabled>
+        `;
+
+    document.getElementById("payment-value").innerHTML = `<input type="number" value="${paymentToEdit.value}" min="0" id="edit-value">`;
+    document.getElementById("payment-limit-date").innerHTML = `<input type="date" value="${paymentToEdit.limitDate}" id="edit-limit-date">`;
+    document.getElementById("payment-date").innerHTML = `<input type="date" value="${paymentToEdit.paymentDate}" id="edit-payment-date" disabled>`;
 
     document.getElementById("saveButton").addEventListener("click", function() {
-        const updatedName = document.getElementById("edit-name").value;
-        const updatedMembership = document.getElementById("edit-membership").value;
-        const updatedEmail = document.getElementById("edit-email").value;
-        const updatedBalance = parseFloat(document.getElementById("edit-balance").value);
-        const updatedAdmissionDate = document.getElementById("edit-admission-date").value;
+        const updatedFromId = document.getElementById("edit-from").value;
+        const updatedToId = document.getElementById("edit-to").value;
+        const updatedPaid = document.getElementById("edit-paid").value;
+        const updatedValue = parseFloat(document.getElementById("edit-value").value);
+        const updatedLimitDate = document.getElementById("edit-limit-date").value;
+        const updatedPaymentDate = document.getElementById("edit-payment-date").value;
 
-        const updatedMember = {
-            ...userToEdit,
-            name: updatedName,
-            membership: updatedMembership,
-            email: updatedEmail,
-            balance: updatedBalance,
-            admissionDate: updatedAdmissionDate
+        const updatedFrom = users.find(user => user.id === updatedFromId);
+        const updatedTo = users.find(user => user.id === updatedToId);
+
+        console.log("upFrom" + updatedFrom.id);
+        console.log("updateTo" + updatedTo.id);
+        const updatedPayment = {
+            ...paymentToEdit,
+            paymentFrom: {
+                id: updatedFrom.id,
+                name: updatedFrom.name,
+                email: updatedFrom.email
+            },
+            paymentTo: {
+                id: updatedTo.id,
+                name: updatedTo.name,
+                email: updatedTo.email
+            },
+            paid: updatedPaid,
+            value: updatedValue,
+            limitDate: updatedLimitDate,
+            paymentDate: updatedPaymentDate
         };
+        console.log(updatedPayment)
 
-        fetch("http://localhost:8080/members/update/" + userToEdit.id, {
+        fetch("http://localhost:8080/payments/update/" + paymentToEdit.id, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(updatedMember)
+            body: JSON.stringify(updatedPayment)
         })
             .then(response => {
                 if (response.ok) {
                     return response.json();
                 } else {
-                    throw new Error("Failed to update member.");
+                    throw new Error("Failed to update Payment.");
                 }
             })
             .then(data => {
-                alert("Member updated successfully!");
+                alert("Payment updated successfully!");
 
-                window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
+                window.location.href = "managePayments?memberID=" + encodeURIComponent(memberId);
             })
             .catch(error => {
-                console.error("Error updating member:", error);
-                alert("Failed to update member. Please try again later.");
+                console.error("Error updating payment:", error);
+                alert("Failed to update payment. Please try again later.");
             });
     });
 
     document.getElementById("cancelButton").addEventListener("click", function() {
-        window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
+        window.location.href = "managePayments?memberID=" + encodeURIComponent(memberId);
     });
 
     document.getElementById("homepage").addEventListener("click", function() {

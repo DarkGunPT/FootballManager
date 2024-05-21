@@ -102,6 +102,27 @@ public class FrontendController {
         return "editUser";
     }
 
+    @GetMapping("createPayment")
+    public String createPayment(Model model, @RequestParam(name = "memberID", required = false) String memberID) {
+        try {
+            model.addAttribute("memberID", memberID);
+        } catch (Exception  e) {
+            e.printStackTrace();
+        }
+        return "createPayment";
+    }
+
+    @GetMapping("editPayment")
+    public String editPayment(Model model, @RequestParam(name = "memberID", required = false) String memberID, @RequestParam(name = "paymentToEditID", required = false) String paymentToEditID) {
+        try {
+            model.addAttribute("memberID", memberID);
+            model.addAttribute("paymentToEditID", paymentToEditID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "editPayment";
+    }
+
     @GetMapping("managePayments")
     public String managePayments(Model model, @RequestParam(name = "memberID", required = false) String memberID) {
         try {

@@ -40,6 +40,14 @@ public class MemberController {
             default -> repository.findAll();
         };
     }
+    @PostMapping("/create/club")
+    public void createClub() {
+        List<Member> club = searchMembers("email", "club@gmail.com");
+        if(club.isEmpty()) {
+            Member member = new Member("Club", Membership.ADMIN, "club", "club@gmail.com", 1000000);
+            repository.save(member);
+        }
+    }
 
    @PostMapping("/create")
     public Member create(@RequestBody Member request) throws URISyntaxException, IOException, InterruptedException {
@@ -52,14 +60,17 @@ public class MemberController {
         HttpClient client = HttpClient.newHttpClient();
         String requestBody;
         LocalDate now = LocalDate.now();
-
+        Member club = getClub();
+        if(club == null){
+            return;
+        }
         for(int i = 1; i <= 12; i++){
             if (member.getMembership() != Membership.VIP) {
                 requestBody = String.format("{\"paymentFrom\": {\"id\": \"%s\", \"name\": \"%s\", \"email\": \"%s\"}, \"paymentTo\": {\"id\": \"%s\", \"name\": \"%s\", \"email\": \"%s\"}, \"value\": %.2f, \"limitDate\": \"%s\", \"paymentDate\": \"%s\"}",
-                        "CLUB", "Football Club", "clube@gmail.com", member.getId(), member.getName(), member.getEmail(), member.getBalance(), now, now);
+                        club.id, club.name, club.email, member.getId(), member.getName(), member.getEmail(), member.getBalance(), now, now);
             } else {
                 requestBody = String.format("{\"paymentFrom\": {\"id\": \"%s\", \"name\": \"%s\", \"email\": \"%s\"}, \"paymentTo\": {\"id\": \"%s\", \"name\": \"%s\", \"email\": \"%s\"}, \"value\": %.2f, \"limitDate\": \"%s\", \"paymentDate\": \"%s\"}",
-                        member.getId(), member.getName(), member.getEmail(), "CLUB", "Football Club", "clube@gmail.com", member.getBalance(), now, now);
+                        member.getId(), member.getName(), member.getEmail(), club.id, club.name, club.email, member.getBalance(), now, now);
             }
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -72,7 +83,14 @@ public class MemberController {
 
             now = now.plusMonths(1);
         }
+    }
 
+    public Member getClub(){
+        List<Member> club = searchMembers("email","club@gmail.com");
+        if(club.isEmpty()){
+            return null;
+        }
+        return club.get(0);
     }
     @DeleteMapping("/delete/{id}")
     public Member delete(@PathVariable String id) throws URISyntaxException, IOException, InterruptedException {
@@ -119,7 +137,6 @@ public class MemberController {
 
     @PutMapping("/update/{id}")
     public Member update(@PathVariable String id, @RequestBody Member request){
-        System.out.println("member: " + request);
         Member existingMember = repository.findByIdentifier(id);
 
         if(existingMember!=null){

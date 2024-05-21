@@ -139,6 +139,9 @@
 <div class="topnav">
     <button id="homepage">Homepage</button>
     <button id="profile">Profile</button>
+    <button id="outgoingPayments">Outgoing Payments</button>
+    <button id="incomingPayments">Incoming Payments</button>
+    <button id="paymentsHistoric">Payments Historic</button>
     <button id="manageUsers">Manage Users</button>
 </div>
 <div class="container">
@@ -268,6 +271,15 @@
     });
     document.getElementById("profile").addEventListener("click", function() {
         window.location.href = "profile?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("outgoingPayments").addEventListener("click", function() {
+        window.location.href = "outgoingPayments?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("incomingPayments").addEventListener("click", function() {
+        window.location.href = "incomingPayments?memberID=" + encodeURIComponent(memberId);
+    });
+    document.getElementById("paymentsHistoric").addEventListener("click", function() {
+        window.location.href = "paymentsHistoric?memberID=" + encodeURIComponent(memberId);
     });
     document.getElementById("manageUsers").addEventListener("click", function() {
         window.location.href = "manageUsers?memberID=" + encodeURIComponent(memberId);
