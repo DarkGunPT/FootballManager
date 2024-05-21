@@ -20,7 +20,7 @@ pipeline {
                 CURRENT_STAGE = 'Login to docker'
                 echo 'Logging to docker'
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {   
-                    sh 'echo ${p} | docker login -u ${DOCKER_USERNAME} --password-stdin'
+                    sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
                 }
                 }
             }
