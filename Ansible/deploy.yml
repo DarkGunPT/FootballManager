@@ -4,7 +4,7 @@
     - vars/vars.yml
   become: yes
   tasks:
-    - name: Prepare to set user password
+    - name: set environment variables
       set_fact:
         frontend_tag: "{{ frontend_tag }}"
         backend_tag: "{{ backend_tag }}"
