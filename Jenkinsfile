@@ -105,7 +105,7 @@ pipeline {
                 script {
                     emailext (
                         attachLog:true,
-                        subject: "Congratualions! Your Build went through all stages without errors!",
+                        subject: "Congratulations! Your Build went through all stages without errors!",
                         body: """
                                 <html>
                                 <head>
